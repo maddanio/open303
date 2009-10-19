@@ -5,6 +5,8 @@
 #include "../DSPCode/rosic_Open303.h"
 using namespace rosic;
 
+#define SHOW_INTERNAL_PARAMETERS // comment this for builds that should only show 'user'-parameters
+
 enum Open303Parameters
 {
   WAVEFORM = 0,
@@ -15,6 +17,16 @@ enum Open303Parameters
   DECAY,
   ACCENT,
   VOLUME,
+
+#ifdef SHOW_INTERNAL_PARAMETERS
+  AMP_SUSTAIN,
+  TANH_SHAPER_DRIVE,
+  TANH_SHAPER_OFFSET,
+  PRE_FILTER_HPF,
+  FEEDBACK_HPF,
+  POST_FILTER_HPF,
+  SQUARE_PHASE_SHIFT,
+#endif
 
   OPEN303_NUM_PARAMETERS
 };

@@ -12,14 +12,24 @@ AudioEffect* createEffectInstance(audioMasterCallback audioMaster)
 Open303VSTProgram::Open303VSTProgram ()
 {
 	// default program values:
-  parameters[WAVEFORM]  = (float) linToLin(   0.0,    0.0,     1.0, 0.0,  1.0);
-  parameters[TUNING]    = (float) linToLin( 440.0,  400.0,   480.0, 0.0,  1.0);
-  parameters[CUTOFF]    = (float) expToLin( 500.0,  314.0,  2394.0, 0.0,  1.0);
-  parameters[RESONANCE] = (float) linToLin(  50.0,    0.0,   100.0, 0.0,  1.0);
-  parameters[ENVMOD]    = 0.25f;
-  parameters[DECAY]     = (float) expToLin( 400.0,  200.0,  2000.0, 0.0,  1.0);
-  parameters[ACCENT]    = 0.5f;
-  parameters[VOLUME]    = (float) linToLin( -12.0,  -60.0,     0.0, 0.0,  1.0);
+  parameters[WAVEFORM]    = (float) linToLin(   0.85,   0.0,     1.0, 0.0,  1.0);
+  parameters[TUNING]      = (float) linToLin( 440.0,  400.0,   480.0, 0.0,  1.0);
+  parameters[CUTOFF]      = (float) expToLin( 500.0,  314.0,  2394.0, 0.0,  1.0);
+  parameters[RESONANCE]   = (float) linToLin(  50.0,    0.0,   100.0, 0.0,  1.0);
+  parameters[ENVMOD]      = 0.25f;
+  parameters[DECAY]       = (float) expToLin( 400.0,  200.0,  2000.0, 0.0,  1.0);
+  parameters[ACCENT]      = 0.5f;
+  parameters[VOLUME]      = (float) linToLin(  -6.0,  -60.0,     0.0, 0.0,  1.0);
+
+#ifdef SHOW_INTERNAL_PARAMETERS
+  parameters[AMP_SUSTAIN]        = (float) linToLin( -60.0,  -60.0,     0.0, 0.0,  1.0);
+  parameters[TANH_SHAPER_DRIVE]  = (float) linToLin(  36.9,    0.0,    60.0, 0.0,  1.0);
+  parameters[TANH_SHAPER_OFFSET] = (float) linToLin(   4.37, -10.0,    10.0, 0.0,  1.0);
+  parameters[PRE_FILTER_HPF]     = (float) expToLin(  60.8,   10.0,   500.0, 0.0,  1.0);
+  parameters[FEEDBACK_HPF]       = (float) expToLin( 150.0,   10.0,   500.0, 0.0,  1.0);
+  parameters[POST_FILTER_HPF]    = (float) expToLin(  46.9,   10.0,   500.0, 0.0,  1.0);
+  parameters[SQUARE_PHASE_SHIFT] = (float) linToLin( 189.0,    0.0,   360.0, 0.0,  1.0);
+#endif
 
 	vst_strncpy (name, "Init", kVstMaxProgNameLen);
 }
@@ -219,6 +229,31 @@ void Open303VST::setParameter (VstInt32 index, float value)
   case VOLUME: 
     open303Core.setVolume(   linToLin(value, 0.0, 1.0, -60.0,      0.0)  ); 
     break;
+
+#ifdef SHOW_INTERNAL_PARAMETERS
+  case AMP_SUSTAIN: 
+    open303Core.setAmpSustain(        linToLin(value, 0.0, 1.0, -60.0,      0.0)  ); 
+    break;
+  case TANH_SHAPER_DRIVE: 
+    open303Core.setTanhShaperDrive(   linToLin(value, 0.0, 1.0,   0.0,     60.0)  ); 
+    break;
+  case TANH_SHAPER_OFFSET: 
+    open303Core.setTanhShaperOffset(  linToLin(value, 0.0, 1.0, -10.0,     10.0)  ); 
+    break;
+  case PRE_FILTER_HPF: 
+    open303Core.setPreFilterHighpass( linToExp(value, 0.0, 1.0,  10.0,    500.0)  ); 
+    break;
+  case FEEDBACK_HPF: 
+    open303Core.setFeedbackHighpass(  linToExp(value, 0.0, 1.0,  10.0,    500.0)  ); 
+    break;
+  case POST_FILTER_HPF: 
+    open303Core.setPostFilterHighpass(linToExp(value, 0.0, 1.0,  10.0,    500.0)  ); 
+    break;
+  case SQUARE_PHASE_SHIFT: 
+    open303Core.setSquarePhaseShift(  linToLin(value, 0.0, 1.0,   0.0,    360.0)  ); 
+    break;
+#endif
+
 	}
 }
 
@@ -243,7 +278,19 @@ void Open303VST::getParameterLabel(VstInt32 index, char* label)
 		case ENVMOD:    vst_strncpy(label, "%",  kVstMaxParamStrLen); break;
 		case DECAY:     vst_strncpy(label, "ms", kVstMaxParamStrLen); break;
 		case ACCENT:    vst_strncpy(label, "%",  kVstMaxParamStrLen); break;
-		case VOLUME:   vst_strncpy(label,  "dB", kVstMaxParamStrLen); break;
+		case VOLUME:    vst_strncpy(label, "dB", kVstMaxParamStrLen); break;
+
+#ifdef SHOW_INTERNAL_PARAMETERS
+		case AMP_SUSTAIN:        vst_strncpy(label, "dB",  kVstMaxParamStrLen); break;
+    case TANH_SHAPER_DRIVE:  vst_strncpy(label, "dB",  kVstMaxParamStrLen); break;
+    case TANH_SHAPER_OFFSET: vst_strncpy(label, "",    kVstMaxParamStrLen); break;
+		case PRE_FILTER_HPF:     vst_strncpy(label, "Hz",  kVstMaxParamStrLen); break;
+		case FEEDBACK_HPF:       vst_strncpy(label, "Hz",  kVstMaxParamStrLen); break;
+		case POST_FILTER_HPF:    vst_strncpy(label, "Hz",  kVstMaxParamStrLen); break;
+		case SQUARE_PHASE_SHIFT: vst_strncpy(label, "deg", kVstMaxParamStrLen); break;
+#endif
+
+    default:        vst_strncpy(label, "",   kVstMaxParamStrLen); break;
 	}
 }
 
@@ -269,6 +316,16 @@ void Open303VST::getParameterDisplay(VstInt32 index, char* text)
   case ACCENT:    sprintf(text, "%.2f", open303Core.getAccent());      break;
   case VOLUME:    sprintf(text, "%.2f", open303Core.getVolume());      break;
 
+#ifdef SHOW_INTERNAL_PARAMETERS
+  case AMP_SUSTAIN:        sprintf(text, "%.2f", open303Core.getAmpSustain());         break;
+  case TANH_SHAPER_DRIVE:  sprintf(text, "%.2f", open303Core.getTanhShaperDrive());    break;
+  case TANH_SHAPER_OFFSET: sprintf(text, "%.2f", open303Core.getTanhShaperOffset());   break;
+  case PRE_FILTER_HPF:     sprintf(text, "%.2f", open303Core.getPreFilterHighpass());  break;
+  case FEEDBACK_HPF:       sprintf(text, "%.2f", open303Core.getFeedbackHighpass());   break;
+  case POST_FILTER_HPF:    sprintf(text, "%.2f", open303Core.getPostFilterHighpass()); break;
+  case SQUARE_PHASE_SHIFT: sprintf(text, "%.2f", open303Core.getSquarePhaseShift());   break;
+#endif
+
   default: vst_strncpy(text, "Not Implemented", kVstMaxParamStrLen);
 	}
 }
@@ -285,6 +342,16 @@ void Open303VST::getParameterName (VstInt32 index, char* label)
 		case DECAY:            vst_strncpy(label, "Decay",         kVstMaxParamStrLen);	    break; 
 		case ACCENT:           vst_strncpy(label, "Accent",        kVstMaxParamStrLen);	    break;      
 		case VOLUME:           vst_strncpy(label, "Volume",        kVstMaxParamStrLen);	    break;
+
+#ifdef SHOW_INTERNAL_PARAMETERS
+		case AMP_SUSTAIN:           vst_strncpy(label, "AmpSustain",    kVstMaxParamStrLen);	 break;
+		case TANH_SHAPER_DRIVE:     vst_strncpy(label, "TanhDrive",     kVstMaxParamStrLen);	 break;
+		case TANH_SHAPER_OFFSET:    vst_strncpy(label, "TanhOffset",    kVstMaxParamStrLen);	 break;
+		case PRE_FILTER_HPF:        vst_strncpy(label, "Pre HPF",       kVstMaxParamStrLen);	 break;
+		case FEEDBACK_HPF:          vst_strncpy(label, "Feedback HPF",  kVstMaxParamStrLen);	 break;
+		case POST_FILTER_HPF:       vst_strncpy(label, "Post HPF",      kVstMaxParamStrLen);	 break;
+		case SQUARE_PHASE_SHIFT:    vst_strncpy(label, "SquarePhase",   kVstMaxParamStrLen);	 break;
+#endif
 
     default: vst_strncpy(label, "Not Implemented", kVstMaxParamStrLen);
 	}

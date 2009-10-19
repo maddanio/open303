@@ -545,7 +545,7 @@
 			</File>
 		</Filter>
 		<File
-			RelativePath="..\..\ToDo.txt"
+			RelativePath="..\Tweaks.txt"
 			>
 		</File>
 	</Files>

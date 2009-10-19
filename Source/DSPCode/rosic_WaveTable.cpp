@@ -8,6 +8,11 @@ WaveTable::WaveTable()
   waveform   = 0;
   symmetry   = 0.5;
 
+  // initialize internal 'back-panel' parameters
+  tanhShaperFactor = dB2amp(36.9);
+  tanhShaperOffset = 4.37;
+  squarePhaseShift = 180.0;
+
   // set up the fourier-transformer:
   fourierTransformer.setBlockSize(tableLength);
 
@@ -252,21 +257,13 @@ void WaveTable::fillWithSquare303()
   for(int n=N1; n<N; n++)
     prototypeTable[n] = -1.0 + s2*(n-N1);
 
-  /*
   // switch polarity and apply tanh-shaping with dc-offset:
-  double a = dB2amp(36.9);
-  double b = -4.37;
   for(int n=0; n<N; n++)
-    prototypeTable[n] = tanh(-a*prototypeTable[n] + b);
-    */
+    prototypeTable[n] = -tanh(tanhShaperFactor*prototypeTable[n] + tanhShaperOffset);
 
-  // switch polarity and apply tanh-shaping with dc-offset:
-  double a = dB2amp(36.9);
-  double b = 4.37;
-  for(int n=0; n<N; n++)
-    prototypeTable[n] = -tanh(a*prototypeTable[n] + b);
-
-  circularShift(prototypeTable, N, N/2);
+  // do a circular shift to phase-align with the saw-wave, when both waveforms are mixed:
+  int nShift = roundToInt(N*squarePhaseShift/360.0);
+  circularShift(prototypeTable, N, nShift);
 
   generateMipMap();
 }

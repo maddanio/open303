@@ -68,6 +68,38 @@ namespace rosic
     saw waveforms. */
     void setSymmetry(double newSymmetry);
 
+    // internal 'back-panel' parameters:
+
+    /** Sets the drive (in dB) for the tanh-shaper for 303-square waveform - internal parameter, to 
+    be scrapped eventually. */
+    void setTanhShaperDriveFor303Square(double newDrive)
+    { tanhShaperFactor = dB2amp(newDrive); fillWithSquare303(); }
+
+    /** Sets the offset (as raw value for the tanh-shaper for 303-square waveform - internal 
+    parameter, to be scrapped eventually. */
+    void setTanhShaperOffsetFor303Square(double newOffset)
+    { tanhShaperOffset = newOffset; fillWithSquare303(); }
+
+    /** Sets the phase shift of tanh-shaped square wave with respect to the saw-wave (in degrees)
+    - this is important when the two are mixed. */
+    void set303SquarePhaseShift(double newShift)
+    { squarePhaseShift = newShift; fillWithSquare303(); }
+
+    //---------------------------------------------------------------------------------------------
+    // inquiry:
+
+    /** Returns the drive (in dB) for the tanh-shaper for 303-square waveform - internal parameter, to 
+    be scrapped eventually. */
+    double getTanhShaperDriveFor303Square() const { return amp2dB(tanhShaperFactor); }
+
+    /** Returns the offset (as raw value for the tanh-shaper for 303-square waveform - internal 
+    parameter, to be scrapped eventually. */
+    double getTanhShaperOffsetFor303Square() const { return tanhShaperOffset; }
+
+    /** Returns the phase shift of tanh-shaped square wave with respect to the saw-wave (in degrees)
+    - this is important when the two are mixed. */
+    double get303SquarePhaseShift() const { return squarePhaseShift; }
+
     //---------------------------------------------------------------------------------------------
     // audio processing:
 
@@ -150,6 +182,10 @@ namespace rosic
 
     // embedded objects:
     FourierTransformerRadix2 fourierTransformer;
+
+
+    // internal parameters:
+    double tanhShaperFactor, tanhShaperOffset, squarePhaseShift;
 
   };
 

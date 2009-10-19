@@ -96,6 +96,9 @@ namespace rosic
     /** Returns the slected filter mode. */
     int getMode() const { return mode; }
 
+    /** Returns the cutoff frequency for the highpass filter in the feedback path. */
+    double getFeedbackHighpassCutoff() const { return feedbackHighpass.getCutoff(); }
+
     //---------------------------------------------------------------------------------------------
     // audio processing:
 
@@ -204,7 +207,9 @@ namespace rosic
     double r   = resonanceSkewed;
     double tmp;
 
-    // compute the filter coefficient via a 12th order polynomial approximation:
+    // compute the filter coefficient via a 12th order polynomial approximation (polynomial 
+    // evaluation is done with a Horner-rule alike scheme with nested quadratic factors in the hope
+    // for potentially better parallelization compared to Horner's rule as is):
     const double pa12 = -1.341281325101042e-02;
     const double pa11 =  8.168739417977708e-02;
     const double pa10 = -2.365036766021623e-01;

@@ -54,6 +54,8 @@ Open303::Open303()
 
   hp1.setMode(OnePoleFilter::HIGHPASS);
   hp2.setMode(OnePoleFilter::HIGHPASS);
+  //hp1.setMode(OnePoleFilter::ALLPASS);   // test
+  //hp2.setMode(OnePoleFilter::ALLPASS);
 
   setSampleRate(sampleRate);
 

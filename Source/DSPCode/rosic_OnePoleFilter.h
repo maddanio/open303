@@ -67,6 +67,12 @@ namespace rosic
     void setInternalState(double newX1, double newY1);
 
     //---------------------------------------------------------------------------------------------
+    // inquiry
+
+    /** Returns the cutoff-frequency. */
+    double getCutoff() const { return cutoff; }
+
+    //---------------------------------------------------------------------------------------------
     // audio processing:
 
     /** Calculates a single filtered output-sample. */

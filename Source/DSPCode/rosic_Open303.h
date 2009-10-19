@@ -75,6 +75,34 @@ namespace rosic
 
     //  from here: parameter settings which were not available to the user in the 303:
 
+    /** Sets the amplitudes envelope's sustain level in decibels. Devil Fish uses the second half 
+    of the range of the (amplitude) decay pot for this and lets the user adjust it between 0 
+    and 100% of the full volume. In the normal 303, this parameter was fixed to zero. */
+    void setAmpSustain(double newAmpSustain) { ampEnv.setSustainInDecibels(newAmpSustain); }
+
+    /** Sets the drive (in dB) for the tanh-shaper for 303-square waveform - internal parameter, to 
+    be scrapped eventually. */
+    void setTanhShaperDrive(double newDrive) 
+    { waveTable2.setTanhShaperDriveFor303Square(newDrive); }
+
+    /** Sets the offset (as raw value for the tanh-shaper for 303-square waveform - internal 
+    parameter, to be scrapped eventually. */
+    void setTanhShaperOffset(double newOffset) 
+    { waveTable2.setTanhShaperOffsetFor303Square(newOffset); }
+
+    /** Sets the cutoff frequency for the highpass before the main filter. */
+    void setPreFilterHighpass(double newCutoff) { hp1.setCutoff(newCutoff); }
+
+    /** Sets the cutoff frequency for the highpass inside the feedback loop of the main filter. */
+    void setFeedbackHighpass(double newCutoff) { filter.setFeedbackHighpassCutoff(newCutoff); }
+
+    /** Sets the cutoff frequency for the highpass after the main filter. */
+    void setPostFilterHighpass(double newCutoff) { hp2.setCutoff(newCutoff); }
+
+    /** Sets the phase shift of tanh-shaped square wave with respect to the saw-wave (in degrees)
+    - this is important when the two are mixed. */
+    void setSquarePhaseShift(double newShift) { waveTable2.set303SquarePhaseShift(newShift); }
+
     /** Sets the slide-time (in ms). The TB-303 had a slide time of 60 ms. */
     void setSlideTime(double newSlideTime);
 
@@ -103,11 +131,6 @@ namespace rosic
     16...3000 ms for this parameter. On the normal 303, this parameter was fixed to 
     approximately 3-4 seconds.  */
     void setAmpDecay(double newAmpDecay) { ampEnv.setDecay(newAmpDecay); }
-
-    /** Sets the amplitudes envelope's sustain level in decibels. Devil Fish uses the second half 
-    of the range of the (amplitude) decay pot for this and lets the user adjust it between 0 
-    and 100% of the full volume. In the normal 303, this parameter was fixed to zero. */
-    void setAmpSustain(double newAmpSustain) { ampEnv.setSustainInDecibels(newAmpSustain); }
 
     /** Sets the amplitudes envelope's release time (in milliseconds). On the normal 303, this 
     parameter was fixed to .....  */
@@ -148,6 +171,33 @@ namespace rosic
 
     //  from here: parameters which were not available to the user in the 303:
 
+    /** Returns the amplitudes envelope's sustain level (in dB). */
+    double getAmpSustain() const { return amp2dB(ampEnv.getSustain()); }
+
+    /** Returns the drive (in dB) for the tanh-shaper for 303-square waveform - internal parameter, 
+    to be scrapped eventually. */
+    double getTanhShaperDrive() const 
+    { return waveTable2.getTanhShaperDriveFor303Square(); }
+
+    /** Returns the offset (as raw value for the tanh-shaper for 303-square waveform - internal 
+    parameter, to be scrapped eventually. */   
+    double getTanhShaperOffset() const 
+    { return waveTable2.getTanhShaperOffsetFor303Square(); }
+
+    /** Returns the cutoff frequency for the highpass before the main filter. */
+    double getPreFilterHighpass() const { return hp1.getCutoff(); }
+
+    /** Retruns the cutoff frequency for the highpass inside the feedback loop of the main 
+    filter. */
+    double getFeedbackHighpass() const { return filter.getFeedbackHighpassCutoff(); }
+
+    /** Returns the cutoff frequency for the highpass after the main filter. */
+    double getPostFilterHighpass() const { return hp2.getCutoff(); }
+
+    /** Returns the phase shift of tanh-shaped square wave with respect to the saw-wave (in degrees)
+    - this is important when the two are mixed. */
+    double getSquarePhaseShift() const { return waveTable2.get303SquarePhaseShift(); }
+
     /** Returns the slide-time (in ms). */
     double getSlideTime() const { return slideTime; }
 
@@ -162,9 +212,6 @@ namespace rosic
 
     /** Returns the amplitudes envelope's decay time (in milliseconds). */
     double getAmpDecay() const { return ampEnv.getDecay(); }
-
-    /** Returns the amplitudes envelope's sustain level (in dB). */
-    double getAmpSustain() const { return amp2dB(ampEnv.getSustain()); }
 
     /** Returns the amplitudes envelope's release time (in milliseconds). */
     double getAmpRelease() const { return normalAmpRelease; }
