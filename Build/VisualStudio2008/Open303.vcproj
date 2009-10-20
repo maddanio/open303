@@ -392,6 +392,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\Source\DSPCode\rosic_BiquadFilter.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\DSPCode\rosic_BiquadFilter.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\Source\DSPCode\rosic_BlendOscillator.cpp"
 				>
 			</File>

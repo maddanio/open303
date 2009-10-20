@@ -3,6 +3,7 @@
 
 #include "rosic_MidiNoteEvent.h"
 #include "rosic_BlendOscillator.h"
+#include "rosic_BiquadFilter.h"
 #include "rosic_TeeBeeFilter.h"
 #include "rosic_AnalogEnvelope.h"
 #include "rosic_DecayEnvelope.h"
@@ -59,7 +60,7 @@ namespace rosic
     void setResonance(double newResonance) { filter.setResonance(newResonance); }
 
     /** Sets the modulation depth of the filter's cutoff frequency by the filter-envelope generator 
-    (in percent of the nominal cutoff frequency). */
+    (in percent). */
     void setEnvMod(double newEnvMod);
 
     /** Sets the main envelope's decay time for non-accented notes (in milliseconds). 
@@ -91,13 +92,13 @@ namespace rosic
     { waveTable2.setTanhShaperOffsetFor303Square(newOffset); }
 
     /** Sets the cutoff frequency for the highpass before the main filter. */
-    void setPreFilterHighpass(double newCutoff) { hp1.setCutoff(newCutoff); }
+    void setPreFilterHighpass(double newCutoff) { highpass1.setCutoff(newCutoff); }
 
     /** Sets the cutoff frequency for the highpass inside the feedback loop of the main filter. */
     void setFeedbackHighpass(double newCutoff) { filter.setFeedbackHighpassCutoff(newCutoff); }
 
     /** Sets the cutoff frequency for the highpass after the main filter. */
-    void setPostFilterHighpass(double newCutoff) { hp2.setCutoff(newCutoff); }
+    void setPostFilterHighpass(double newCutoff) { highpass2.setCutoff(newCutoff); }
 
     /** Sets the phase shift of tanh-shaped square wave with respect to the saw-wave (in degrees)
     - this is important when the two are mixed. */
@@ -157,7 +158,7 @@ namespace rosic
     double getResonance() const { return filter.getResonance(); }
 
     /** Returns the modulation depth of the filter's cutoff frequency by the filter-envelope 
-    generator (in percent of the nominal cutoff frequency). */
+    generator (in percent). */
     double getEnvMod() const { return envMod; }
 
     /** Returns the filter envelope's decay time for non-accented notes (in milliseconds). */
@@ -185,14 +186,14 @@ namespace rosic
     { return waveTable2.getTanhShaperOffsetFor303Square(); }
 
     /** Returns the cutoff frequency for the highpass before the main filter. */
-    double getPreFilterHighpass() const { return hp1.getCutoff(); }
+    double getPreFilterHighpass() const { return highpass1.getCutoff(); }
 
     /** Retruns the cutoff frequency for the highpass inside the feedback loop of the main 
     filter. */
     double getFeedbackHighpass() const { return filter.getFeedbackHighpassCutoff(); }
 
     /** Returns the cutoff frequency for the highpass after the main filter. */
-    double getPostFilterHighpass() const { return hp2.getCutoff(); }
+    double getPostFilterHighpass() const { return highpass2.getCutoff(); }
 
     /** Returns the phase shift of tanh-shaped square wave with respect to the saw-wave (in degrees)
     - this is important when the two are mixed. */
@@ -242,9 +243,10 @@ namespace rosic
     TeeBeeFilter              filter;
     AnalogEnvelope            ampEnv; 
     DecayEnvelope             mainEnv;
-    LeakyIntegrator           pitchSlewLimiter, ampDeClicker; // ampEnv3; //ampEnv2, 
+    LeakyIntegrator           pitchSlewLimiter, ampDeClicker;
     LeakyIntegrator           rc1, rc2;
-    OnePoleFilter             hp1, hp2;                      // highpasses
+    OnePoleFilter             highpass1, highpass2, allpass; 
+    BiquadFilter              notch;
     EllipticQuarterBandFilter antiAliasFilter;
     AcidSequencer             sequencer;
 
@@ -286,7 +288,7 @@ namespace rosic
     double accent;           // scales all "byVel" parameters
     double slideTime;        // the time to slide from one note to another (in ms)
     double cutoff;           // nominal cutoff frequency of the filter
-    double envMod;           // strength of the envelope modulation in semitones
+    double envMod;           // strength of the envelope modulation in percent
     double envUpFraction;    // fraction of the envelope that goes upward
     double envOffset;        // offset for the normalized envelope ('bipolarity' parameter)
     double envScaler;        // scale-factor for the normalized envelope (derived from envMod)
@@ -367,9 +369,8 @@ namespace rosic
     double tmp2       = 0.0;
     if( accentGain > 0.0 )
       tmp2 = mainEnvOut;
-    tmp2 = n2 * rc2.getSample(tmp2);
-    tmp1 = (envMod/12.0) * ( tmp1 - 0.35 );      
-    //tmp1 = envScaler * ( tmp1 - envOffset );  // seems not to work yet
+    tmp2 = n2 * rc2.getSample(tmp2);  
+    tmp1 = envScaler * ( tmp1 - envOffset );  // seems not to work yet
     tmp2 = accentGain*tmp2;
     double instCutoff = cutoff * pow(2.0, tmp1+tmp2);
     filter.setCutoff(instCutoff);
@@ -379,22 +380,30 @@ namespace rosic
     if( ampEnv.isNoteOn() )
       ampEnvOut += 0.45*mainEnvOut + accentGain*4.0*mainEnvOut; 
     ampEnvOut = ampDeClicker.getSample(ampEnvOut);
-    idle      = sequencer.getSequencerMode() == AcidSequencer::OFF 
-                 && ampEnv.endIsReached() && ampEnvOut < 0.000001;
 
     // oversampled calculations:
     double tmp;
     for(int i=1; i<=oversampling; i++)
     {
-      tmp  = oscillator.getSample();          // the raw oscillator signal 
-      tmp  = hp1.getSample(tmp);              // pre-filter highpass
+      tmp  = -oscillator.getSample();         // the raw oscillator signal 
+      tmp  = highpass1.getSample(tmp);        // pre-filter highpass
       tmp  = filter.getSample(tmp);           // now it's filtered
-      tmp *= ampEnvOut;                       // amplified
-      tmp  = hp2.getSample(tmp);              // may operate without oversampling....
       tmp  = antiAliasFilter.getSample(tmp);  // anti-aliasing filtered
+      tmp *= ampEnvOut;                       // amplified
     }
 
-    return tmp * ampScaler;
+    // these filters may actually operate without oversampling (but only if we reset them in
+    // triggerNote - avoid clicks)
+    tmp  = allpass.getSample(tmp);
+    tmp  = highpass2.getSample(tmp);        
+    tmp  = notch.getSample(tmp);
+    tmp *= ampScaler;
+
+    // find out whether we may switch ourselves off for the next call:
+    idle = (sequencer.getSequencerMode() == AcidSequencer::OFF && ampEnv.endIsReached() 
+            && fabs(tmp) < 0.000001); // ampEnvOut < 0.000001;
+
+    return tmp;
   }
 
 }

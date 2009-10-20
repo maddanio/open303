@@ -25,9 +25,9 @@ Open303VSTProgram::Open303VSTProgram ()
   parameters[AMP_SUSTAIN]        = (float) linToLin( -60.0,  -60.0,     0.0, 0.0,  1.0);
   parameters[TANH_SHAPER_DRIVE]  = (float) linToLin(  36.9,    0.0,    60.0, 0.0,  1.0);
   parameters[TANH_SHAPER_OFFSET] = (float) linToLin(   4.37, -10.0,    10.0, 0.0,  1.0);
-  parameters[PRE_FILTER_HPF]     = (float) expToLin(  60.8,   10.0,   500.0, 0.0,  1.0);
+  parameters[PRE_FILTER_HPF]     = (float) expToLin(  44.5,   10.0,   500.0, 0.0,  1.0);
   parameters[FEEDBACK_HPF]       = (float) expToLin( 150.0,   10.0,   500.0, 0.0,  1.0);
-  parameters[POST_FILTER_HPF]    = (float) expToLin(  46.9,   10.0,   500.0, 0.0,  1.0);
+  parameters[POST_FILTER_HPF]    = (float) expToLin(  24.0,   10.0,   500.0, 0.0,  1.0);
   parameters[SQUARE_PHASE_SHIFT] = (float) linToLin( 189.0,    0.0,   360.0, 0.0,  1.0);
 #endif
 
@@ -63,6 +63,16 @@ Open303VST::Open303VST(audioMasterCallback audioMaster)
 	eventBufferLength = 0;
 	eventBuffer       = NULL;
 	suspend();
+
+  // for debugging only
+  open303Core.setCutoff(3.138152786059267e+002);
+  open303Core.setEnvMod(0.0);
+  open303Core.setEnvMod(100.0);
+  open303Core.setCutoff(2.394411986817546e+003);
+  open303Core.setEnvMod(0.0);
+
+
+  int dummy = 0;
 }
 
 Open303VST::~Open303VST ()

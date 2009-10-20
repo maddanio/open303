@@ -30,7 +30,7 @@ Open303::Open303()
   slideToNextNote  = false;
   idle             = true;
 
-  setEnvMod(12.0);
+  setEnvMod(25.0);
 
   oscillator.setWaveTable1(&waveTable1);
   oscillator.setWaveForm1(WaveTable::SAW303);
@@ -52,17 +52,21 @@ Open303::Open303()
   rc1.setTimeConstant(0.0);
   rc2.setTimeConstant(15.0);
 
-  hp1.setMode(OnePoleFilter::HIGHPASS);
-  hp2.setMode(OnePoleFilter::HIGHPASS);
-  //hp1.setMode(OnePoleFilter::ALLPASS);   // test
-  //hp2.setMode(OnePoleFilter::ALLPASS);
+  highpass1.setMode(OnePoleFilter::HIGHPASS);
+  highpass2.setMode(OnePoleFilter::HIGHPASS);
+  allpass.setMode(OnePoleFilter::ALLPASS);
+  notch.setMode(BiquadFilter::BANDREJECT);
 
   setSampleRate(sampleRate);
 
   // tweakables:
   oscillator.setPulseWidth(50.0);
-  hp1.setCutoff(60.8);
-  hp2.setCutoff(46.9);
+  highpass1.setCutoff(44.486);
+  highpass2.setCutoff(24.167);
+  allpass.setCutoff(14.008);
+  notch.setFrequency(7.5164);
+  notch.setBandwidth(4.7);
+
   filter.setFeedbackHighpassCutoff(150.0);      
 }
 
@@ -84,8 +88,12 @@ void Open303::setSampleRate(double newSampleRate)
   rc2.setSampleRate(             (float)newSampleRate);
   sequencer.setSampleRate(              newSampleRate);
 
-  hp1.setSampleRate           (  oversampling*newSampleRate);
-  hp2.setSampleRate           (  oversampling*newSampleRate);
+  highpass2.setSampleRate     (         newSampleRate);
+  allpass.setSampleRate       (         newSampleRate);
+  notch.setSampleRate         (         newSampleRate);
+
+  highpass1.setSampleRate     (  oversampling*newSampleRate);
+
   oscillator.setSampleRate    (  oversampling*newSampleRate);
   filter.setSampleRate        (  oversampling*newSampleRate);
 }
@@ -206,6 +214,11 @@ void Open303::triggerNote(int noteNumber, bool hasAccent)
   {
     oscillator.resetPhase();
     filter.reset();
+    highpass1.reset();
+    highpass2.reset();
+    allpass.reset();
+    notch.reset();
+    antiAliasFilter.reset();
   }
 
   if( hasAccent )  
@@ -273,7 +286,7 @@ void Open303::setMainEnvDecay(double newDecay)
 
 void Open303::calculateEnvModScalerAndOffset()
 {
-  bool useMeasuredMapping = true;
+  bool useMeasuredMapping = true; // might be shown as user parameter later
   if( useMeasuredMapping == true )
   {
     // define some constants that arise from the measurements:
@@ -287,8 +300,8 @@ void Open303::calculateEnvModScalerAndOffset()
     const double sHiC = 0.864344900642434;       // constant in line eq. for scaler at high cutoff
 
     // do the calculation of the scaler and offset:
-    double e   = linToLin(envMod, 0.0, 80.0, 0.0, 1.0);
-    double c   = expToLin(cutoff, c0,  c1,   0.0, 1.0);
+    double e   = linToLin(envMod, 0.0, 100.0, 0.0, 1.0);
+    double c   = expToLin(cutoff, c0,   c1,   0.0, 1.0);
     double sLo = sLoF*e + sLoC;
     double sHi = sHiF*e + sHiC;
     envScaler  = (1-c)*sLo + c*sHi;

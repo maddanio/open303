@@ -9,7 +9,7 @@
 			Name="Debug|Win32"
 			>
 			<DebugSettings
-				Command=""
+				Command="D:\Tools\pluginHost_v_1_5\PluginHost.exe"
 				WorkingDirectory=""
 				CommandArguments=""
 				Attach="false"
