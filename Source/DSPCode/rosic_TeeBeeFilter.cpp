@@ -17,7 +17,8 @@ TeeBeeFilter::TeeBeeFilter()
   feedbackHighpass.setMode(OnePoleFilter::HIGHPASS);
   feedbackHighpass.setCutoff(150.0);
 
-  setMode(LP_18);
+  //setMode(LP_18);
+  setMode(TB_303);
   calculateCoefficientsExact();
   reset();
 }
@@ -70,6 +71,7 @@ void TeeBeeFilter::setMode(int newMode)
     default:        c0 =  1.0; c1 =  0.0; c2 =  0.0; c3 =  0.0; c4 =  0.0;  // flat
     }
   }
+  calculateCoefficientsApprox4();
 }
 
 //-------------------------------------------------------------------------------------------------

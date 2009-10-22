@@ -45,6 +45,7 @@ namespace rosic
       BP_6_12,
       BP_12_6,
       BP_6_6,
+      TB_303,      // ala mystran & kunn (page 40 in the kvr-thread)
 
       NUM_MODES
     };
@@ -197,6 +198,9 @@ namespace rosic
     // resonant frequency:
     double gsq = b0*b0 / (1.0 + a1*a1 + 2.0*a1*c);
     k          = r / (gsq*gsq);
+
+    if( mode == TB_303 )
+      k *= (17.0/4.0);
   }
 
   INLINE void TeeBeeFilter::calculateCoefficientsApprox4()
@@ -247,6 +251,9 @@ namespace rosic
     tmp  = wc2*tmp + pr3*wc + pr2;
     tmp  = wc2*tmp + pr1*wc + pr0; // this is now the scale factor
     k    = r * tmp;
+
+    if( mode == TB_303 )
+      k *= (17.0/4.0);
   }
 
   INLINE double TeeBeeFilter::shape(double x)
@@ -263,9 +270,24 @@ namespace rosic
 
   INLINE double TeeBeeFilter::getSample(double in)
   {
+    double y0;
+
+    if( mode == TB_303 )
+    {
+      //y0  = in - feedbackHighpass.getSample(k * shape(y4));  
+      y0 = in - feedbackHighpass.getSample(k*y4);  
+      //y0  = in - k*shape(y4);  
+      //y0  = in-k*y4;  
+      y1 += 2*b0*(y0-y1+y2);
+      y2 +=   b0*(y1-2*y2+y3);
+      y3 +=   b0*(y2-2*y3+y4);
+      y4 +=   b0*(y3-2*y4);
+      return 3*y4;
+    }
+
     // apply drive and feedback to obtain the filter's input signal:
     //double y0 = inputFilter.getSample(0.125*driveFactor*in) - feedbackHighpass.getSample(k*y4);
-    double y0 = 0.125*driveFactor*in - feedbackHighpass.getSample(k*y4);  
+    y0 = 0.125*driveFactor*in - feedbackHighpass.getSample(k*y4);  
 
     /*
     // cascade of four 1st order sections with nonlinearities:

@@ -20,6 +20,7 @@ Open303VSTProgram::Open303VSTProgram ()
   parameters[DECAY]       = (float) expToLin( 400.0,  200.0,  2000.0, 0.0,  1.0);
   parameters[ACCENT]      = 0.5f;
   parameters[VOLUME]      = (float) linToLin(  -6.0,  -60.0,     0.0, 0.0,  1.0);
+  parameters[FILTER_TYPE] = (float) indexToNormalizedValue(TeeBeeFilter::LP_18, TeeBeeFilter::NUM_MODES);
 
 #ifdef SHOW_INTERNAL_PARAMETERS
   parameters[AMP_SUSTAIN]        = (float) linToLin( -60.0,  -60.0,     0.0, 0.0,  1.0);
@@ -239,6 +240,9 @@ void Open303VST::setParameter (VstInt32 index, float value)
   case VOLUME: 
     open303Core.setVolume(   linToLin(value, 0.0, 1.0, -60.0,      0.0)  ); 
     break;
+  case FILTER_TYPE: 
+      open303Core.filter.setMode(  normalizedValueToIndex(value, TeeBeeFilter::NUM_MODES) );
+    break;
 
 #ifdef SHOW_INTERNAL_PARAMETERS
   case AMP_SUSTAIN: 
@@ -325,6 +329,30 @@ void Open303VST::getParameterDisplay(VstInt32 index, char* text)
   case DECAY:     sprintf(text, "%.2f", open303Core.getDecay());       break;
   case ACCENT:    sprintf(text, "%.2f", open303Core.getAccent());      break;
   case VOLUME:    sprintf(text, "%.2f", open303Core.getVolume());      break;
+  case FILTER_TYPE:
+    {
+      switch( open303Core.filter.getMode() )
+      {
+      case TeeBeeFilter::FLAT:     vst_strncpy(text, "Flat",     kVstMaxParamStrLen);  break;
+      case TeeBeeFilter::LP_6:     vst_strncpy(text, "LP 6",     kVstMaxParamStrLen);  break;
+      case TeeBeeFilter::LP_12:    vst_strncpy(text, "LP 12",    kVstMaxParamStrLen);  break;
+      case TeeBeeFilter::LP_18:    vst_strncpy(text, "LP 18",    kVstMaxParamStrLen);  break;
+      case TeeBeeFilter::LP_24:    vst_strncpy(text, "LP 24",    kVstMaxParamStrLen);  break;
+      case TeeBeeFilter::HP_6:     vst_strncpy(text, "HP 6",     kVstMaxParamStrLen);  break;
+      case TeeBeeFilter::HP_12:    vst_strncpy(text, "HP 12",    kVstMaxParamStrLen);  break;
+      case TeeBeeFilter::HP_18:    vst_strncpy(text, "HP 18",    kVstMaxParamStrLen);  break;
+      case TeeBeeFilter::HP_24:    vst_strncpy(text, "HP 24",    kVstMaxParamStrLen);  break;
+      case TeeBeeFilter::BP_12_12: vst_strncpy(text, "BP 12/12", kVstMaxParamStrLen);  break;
+      case TeeBeeFilter::BP_6_18:  vst_strncpy(text, "BP 6/18",  kVstMaxParamStrLen);  break;
+      case TeeBeeFilter::BP_18_6:  vst_strncpy(text, "BP 18/6",  kVstMaxParamStrLen);  break;
+      case TeeBeeFilter::BP_6_12:  vst_strncpy(text, "BP 6/12",  kVstMaxParamStrLen);  break;
+      case TeeBeeFilter::BP_12_6:  vst_strncpy(text, "BP 12/6",  kVstMaxParamStrLen);  break;
+      case TeeBeeFilter::BP_6_6:   vst_strncpy(text, "BP 6/6",   kVstMaxParamStrLen);  break;
+      case TeeBeeFilter::TB_303:   vst_strncpy(text, "TB 303",   kVstMaxParamStrLen);  break;
+
+      default: vst_strncpy(text, "Flat", kVstMaxParamStrLen);
+      }
+    }                                                                                  break;
 
 #ifdef SHOW_INTERNAL_PARAMETERS
   case AMP_SUSTAIN:        sprintf(text, "%.2f", open303Core.getAmpSustain());         break;
@@ -352,6 +380,7 @@ void Open303VST::getParameterName (VstInt32 index, char* label)
 		case DECAY:            vst_strncpy(label, "Decay",         kVstMaxParamStrLen);	    break; 
 		case ACCENT:           vst_strncpy(label, "Accent",        kVstMaxParamStrLen);	    break;      
 		case VOLUME:           vst_strncpy(label, "Volume",        kVstMaxParamStrLen);	    break;
+		case FILTER_TYPE:      vst_strncpy(label, "FilterMode",    kVstMaxParamStrLen);	    break; 
 
 #ifdef SHOW_INTERNAL_PARAMETERS
 		case AMP_SUSTAIN:           vst_strncpy(label, "AmpSustain",    kVstMaxParamStrLen);	 break;
