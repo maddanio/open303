@@ -1,7 +1,7 @@
-#include "rosic_WaveTable.h"
+#include "rosic_MipMappedWaveTable.h"
 using namespace rosic;
 
-WaveTable::WaveTable()
+MipMappedWaveTable::MipMappedWaveTable()
 {
   // init member variables:
   sampleRate = 44100.0;
@@ -21,7 +21,7 @@ WaveTable::WaveTable()
   initTableSet();
 }
 
-WaveTable::~WaveTable()
+MipMappedWaveTable::~MipMappedWaveTable()
 {
 
 }
@@ -29,12 +29,12 @@ WaveTable::~WaveTable()
 //-------------------------------------------------------------------------------------------------
 // parameter settings:
 
-void WaveTable::setWaveform(double* newWaveForm, int lengthInSamples)
+void MipMappedWaveTable::setWaveform(double* newWaveForm, int lengthInSamples)
 {
   int i;
   if( lengthInSamples == tableLength )
   {
-    // just copy the values into the internal buffer, when the length of the passed table and the 
+    // just copy the values into the internal buffer, when the length of the passed table and the
     // internal table match:
     for( i=0; i<tableLength; i++ )
       prototypeTable[i] = newWaveForm[i];
@@ -46,16 +46,16 @@ void WaveTable::setWaveform(double* newWaveForm, int lengthInSamples)
   generateMipMap();
 }
 
-void WaveTable::setWaveform(int newWaveform)
+void MipMappedWaveTable::setWaveform(int newWaveform)
 {
   if( (newWaveform >= 0) && (newWaveform != waveform) )
   {
     waveform = newWaveform;
     renderWaveform();
-  } 
+  }
 }
 
-void WaveTable::setSymmetry(double newSymmetry)
+void MipMappedWaveTable::setSymmetry(double newSymmetry)
 {
   symmetry = newSymmetry;
   renderWaveform();
@@ -64,13 +64,13 @@ void WaveTable::setSymmetry(double newSymmetry)
 //-------------------------------------------------------------------------------------------------
 // internal functions:
 
-void WaveTable::initPrototypeTable()
+void MipMappedWaveTable::initPrototypeTable()
 {
   for(int i=0; i<(tableLength+4); i++)
     prototypeTable[i] = 0.0;
 }
 
-void WaveTable::initTableSet()
+void MipMappedWaveTable::initTableSet()
 {
   int t, i; // indices fo table and position
   for(t=0; t<numTables; t++)
@@ -78,7 +78,7 @@ void WaveTable::initTableSet()
       tableSet[t][i] = 0.0;
 }
 
-void WaveTable::removeDC()
+void MipMappedWaveTable::removeDC()
 {
   // calculate DC-offset (= average value of the table):
   double dcOffset = 0.0;
@@ -92,7 +92,7 @@ void WaveTable::removeDC()
     prototypeTable[i] -= dcOffset;
 }
 
-void WaveTable::normalize()
+void MipMappedWaveTable::normalize()
 {
   // find maximum:
   double max = 0.0;
@@ -107,10 +107,10 @@ void WaveTable::normalize()
     prototypeTable[i] *= scale;
 }
 
-void WaveTable::reverseTime()
+void MipMappedWaveTable::reverseTime()
 {
-  static intA i;
-  static doubleA tmpTable[tableLength+4];
+  int    i;
+  double tmpTable[tableLength+4];
 
   for(i=0; i<tableLength; i++)
     tmpTable[i] = prototypeTable[tableLength-i-1];
@@ -119,7 +119,7 @@ void WaveTable::reverseTime()
     prototypeTable[i] = tmpTable[i];
 }
 
-void WaveTable::renderWaveform()
+void MipMappedWaveTable::renderWaveform()
 {
   switch( waveform )
   {
@@ -130,11 +130,11 @@ void WaveTable::renderWaveform()
   case   SQUARE303: fillWithSquare303();   break;
   case   SAW303:    fillWithSaw303();      break;
 
-  default :  fillWithSine();         
+  default :  fillWithSine();
   }
 }
 
-void WaveTable::generateMipMap()
+void MipMappedWaveTable::generateMipMap()
 {
   static double spectrum[tableLength];
   //static int    position, offset;
@@ -144,7 +144,7 @@ void WaveTable::generateMipMap()
   //offset   = tableLength+4; // offset between tow tables, the 4 is the number
   // of additional samples used for interpolation
 
-  // copy the prototypeTable into the 1st table of the mipmap (this actually makes the 
+  // copy the prototypeTable into the 1st table of the mipmap (this actually makes the
   // prototypeTable redundant - room for optimization here):
   t = 0;
   for(i=0; i<tableLength; i++)
@@ -191,14 +191,14 @@ void WaveTable::generateMipMap()
 //-------------------------------------------------------------------------------------------------
 // fill the prototype-table with various standard waveforms:
 
-void WaveTable::fillWithSine()
+void MipMappedWaveTable::fillWithSine()
 {
   for (long i=0; i<tableLength; i++)
     prototypeTable[i] = sin( (2.0*PI*i) / (double) (tableLength) );
   generateMipMap();
 }
 
-void WaveTable::fillWithTriangle()
+void MipMappedWaveTable::fillWithTriangle()
 {
   int i;
   for (i=0; i<(tableLength/4); i++)
@@ -213,12 +213,11 @@ void WaveTable::fillWithTriangle()
   generateMipMap();
 }
 
-void WaveTable::fillWithSquare()
+void MipMappedWaveTable::fillWithSquare()
 {
   int    N  = tableLength;
   double k  = symmetry;
   int    N1 = clip(roundToInt(k*(N-1)), 1, N-1);
-  int    N2 = N-N1;
   for(int n=0; n<N1; n++)
     prototypeTable[n] = +1.0;
   for(int n=N1; n<N; n++)
@@ -227,7 +226,7 @@ void WaveTable::fillWithSquare()
   generateMipMap();
 }
 
-void WaveTable::fillWithSaw()
+void MipMappedWaveTable::fillWithSaw()
 {
   int    N  = tableLength;
   double k  = symmetry;
@@ -243,7 +242,7 @@ void WaveTable::fillWithSaw()
   generateMipMap();
 }
 
-void WaveTable::fillWithSquare303()
+void MipMappedWaveTable::fillWithSquare303()
 {
   // generate the saw-wave:
   int    N  = tableLength;
@@ -268,7 +267,7 @@ void WaveTable::fillWithSquare303()
   generateMipMap();
 }
 
-void WaveTable::fillWithSaw303()
+void MipMappedWaveTable::fillWithSaw303()
 {
   // generate the saw-wave:
   int    N  = tableLength;
@@ -289,7 +288,7 @@ void WaveTable::fillWithSaw303()
   generateMipMap();
 }
 
-void WaveTable::fillWithPeak()
+void MipMappedWaveTable::fillWithPeak()
 {
   int i;
   for (i=0; i<(tableLength/2); i++)
@@ -304,7 +303,7 @@ void WaveTable::fillWithPeak()
   generateMipMap();
 }
 
-void WaveTable::fillWithMoogSaw()
+void MipMappedWaveTable::fillWithMoogSaw()
 {
   // the sawUp part:
   int i;

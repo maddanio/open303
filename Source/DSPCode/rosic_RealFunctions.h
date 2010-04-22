@@ -12,6 +12,9 @@
 namespace rosic
 {
 
+  /** Inverse hyperbolic sine. */
+  INLINE double asinh(double x);
+
   /** Returns -1.0 if x is below low, 0.0 if x is between low and high and 1.0 if x is above high. */
   INLINE double belowOrAbove(double x, double low, double high);
 
@@ -34,7 +37,7 @@ namespace rosic
   /** Generates a 2*pi periodic saw wave. */
   INLINE double sawWave(double x);
 
-  /** Calculates sine and cosine of x - this is more efficient than calling sin(x) and 
+  /** Calculates sine and cosine of x - this is more efficient than calling sin(x) and
   cos(x) seperately. */
   INLINE void sinCos(double x, double* sinResult, double* cosResult);
 
@@ -52,6 +55,11 @@ namespace rosic
 
   //===============================================================================================
   // implementation:
+
+  INLINE double asinh(double x)
+  {
+    return log(x + sqrt(x*x+1) );
+  }
 
   INLINE double belowOrAbove(double x, double low, double high)
   {
@@ -113,11 +121,11 @@ namespace rosic
 
   INLINE void sinCos(double x, double* sinResult, double* cosResult)
   {
-    double s, c;     // do we need these intermediate variables?
-    #ifdef LINUX     // assembly-version causes compiler errors on linux (gcc-thing?)
+    #ifdef __GNUC__  // \todo assembly-version causes compiler errors on gcc
       *sinResult = sin(x);
       *cosResult = cos(x);
     #else
+      double s, c;     // do we need these intermediate variables?
       __asm fld x
       __asm fsincos
       __asm fstp c

@@ -1,5 +1,5 @@
-#ifndef rosic_WaveTable_h
-#define rosic_WaveTable_h
+#ifndef rosic_MipMappedWaveTable_h
+#define rosic_MipMappedWaveTable_h
 
 // rosic-indcludes:
 #include "rosic_FunctionTemplates.h"
@@ -15,7 +15,7 @@ namespace rosic
 
   */
 
-  class WaveTable
+  class MipMappedWaveTable
   {
 
     // Oscillator and SuperOscillator classes need access to certain protected member-variables 
@@ -42,10 +42,10 @@ namespace rosic
     // construction/destruction:
 
     /** Constructor. */
-    WaveTable();          
+    MipMappedWaveTable();          
 
     /** Destructor. */
-    ~WaveTable();         
+    ~MipMappedWaveTable();         
 
     //---------------------------------------------------------------------------------------------
     // parmeter-settings:
@@ -166,14 +166,14 @@ namespace rosic
     int    waveform;   // index of the currently chosen native waveform
     double sampleRate; // the sampleRate
 
-    doubleA prototypeTable[tableLength];
+    double prototypeTable[tableLength];
       // this is the prototype-table with full bandwidth. one additional sample (same as 
       // prototypeTable[0]) for linear interpolation without need for table wraparound at the last 
       // sample (-> saves one if-statement each audio-cycle) ...and a three further addtional 
       // samples for more elaborate interpolations like cubic (not implemented yet, also:
       // the fillWith...()-functions don't support these samples yet). */
 
-    doubleA tableSet[numTables][tableLength+4];
+    double tableSet[numTables][tableLength+4];
       // The multisample for anti-aliased waveform generation. The 4 additional values are equal 
       // to the first 4 values in the table for easier interpolation. The first index is for the 
       // table-number - index 0 accesses the first version which has full bandwidth, index 1 
@@ -183,18 +183,15 @@ namespace rosic
     // embedded objects:
     FourierTransformerRadix2 fourierTransformer;
 
-
     // internal parameters:
     double tanhShaperFactor, tanhShaperOffset, squarePhaseShift;
 
   };
 
   //-----------------------------------------------------------------------------------------------
-  // from here: definitions of the functions to be inlined, i.e. all functions which are supposed 
-  // to be called at audio-rate (they can't be put into the .cpp file):
-
+  // inlined functions:
     
-  INLINE double WaveTable::getValueLinear(int integerPart, double fractionalPart, int tableIndex)
+  INLINE double MipMappedWaveTable::getValueLinear(int integerPart, double fractionalPart, int tableIndex)
   {
     // ensure, that the table index is in the valid range:
     if( tableIndex<=0 )
@@ -206,7 +203,7 @@ namespace rosic
            +      fractionalPart  * tableSet[tableIndex][integerPart+1];
   }
 
-  INLINE double WaveTable::getValueLinear(double phaseIndex, int tableIndex)
+  INLINE double MipMappedWaveTable::getValueLinear(double phaseIndex, int tableIndex)
   {
     /*
     // ensure, that the table index is in the valid range:
@@ -227,4 +224,4 @@ namespace rosic
 
 } // end namespace rosic
 
-#endif // rosic_WaveTable_h
+#endif // rosic_MipMappedWaveTable_h

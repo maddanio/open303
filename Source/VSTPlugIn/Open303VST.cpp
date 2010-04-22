@@ -41,7 +41,7 @@ Open303VSTProgram::Open303VSTProgram ()
 //-------------------------------------------------------------------------------------------------
 // construction/destruction:
 
-Open303VST::Open303VST(audioMasterCallback audioMaster) 
+Open303VST::Open303VST(audioMasterCallback audioMaster)
 : AudioEffectX(audioMaster, numPrograms, OPEN303_NUM_PARAMETERS)
 {
 	// initialize programs
@@ -51,29 +51,28 @@ Open303VST::Open303VST(audioMasterCallback audioMaster)
 
 	if(programs)
 		setProgram(0);
-	
+
 	if(audioMaster)
 	{
 		setNumInputs(0);	     // maybe include input for filter FM by audio input here later (DeviFish does this)...
-		setNumOutputs(2);            
+		setNumOutputs(2);
 		canProcessReplacing();
 		isSynth();
-		setUniqueID('O303');
+		setUniqueID('O303');   // warning on GCC
 	}
 
 	eventBufferLength = 0;
 	eventBuffer       = NULL;
 	suspend();
 
+  /*
   // for debugging only
   open303Core.setCutoff(3.138152786059267e+002);
   open303Core.setEnvMod(0.0);
   open303Core.setEnvMod(100.0);
   open303Core.setCutoff(2.394411986817546e+003);
   open303Core.setEnvMod(0.0);
-
-
-  int dummy = 0;
+  */
 }
 
 Open303VST::~Open303VST ()
@@ -87,17 +86,17 @@ Open303VST::~Open303VST ()
 
 void Open303VST::processReplacing (float** inputs, float** outputs, VstInt32 sampleFrames)
 {
-  float *out1 = outputs[0]; // output buffer for first channel  (left) 
+  float *out1 = outputs[0]; // output buffer for first channel  (left)
   float *out2 = outputs[1]; // output buffer for second channel (right)
 
-  // if there are no events in this block, we bypass the event handling altogether and can use a 
+  // if there are no events in this block, we bypass the event handling altogether and can use a
   // much simpler loop:
   if( eventBufferLength <= 0 )
   {
     for(int i=0; i<sampleFrames; i++)
-    { 
+    {
       *out1 = *out2 = (float) open303Core.getSample();
-      out1++; 
+      out1++;
       out2++;
     }
     return;
@@ -106,8 +105,8 @@ void Open303VST::processReplacing (float** inputs, float** outputs, VstInt32 sam
   // loop for the case when there are events to be considered:
   int eventCounter = 0;
   for(int i=0; i<sampleFrames; i++)
-  { 
-    // check, if at this sample one or more events have occurred: 
+  {
+    // check, if at this sample one or more events have occurred:
     while( (eventCounter < eventBufferLength) && (i == eventBuffer[eventCounter].deltaFrames) )
     {
       // yes, an event has occurred now -> process the event, if it's a MIDI message:
@@ -127,12 +126,12 @@ void Open303VST::processReplacing (float** inputs, float** outputs, VstInt32 sam
 
     // render audio and increment buffer pointers:
     *out1 = *out2 = (float) open303Core.getSample();
-    out1++; 
+    out1++;
     out2++;
   }
 
   // delete vst event buffer, it's invalid now:
-  if(eventBuffer) 
+  if(eventBuffer)
     delete[] eventBuffer;
   eventBuffer = NULL;
   eventBufferLength = 0;
@@ -140,14 +139,14 @@ void Open303VST::processReplacing (float** inputs, float** outputs, VstInt32 sam
 
 VstInt32 Open303VST::processEvents (VstEvents* ev)
 {
-  // delete old vst event buffer: 
-  if( eventBuffer != NULL ) 
+  // delete old vst event buffer:
+  if( eventBuffer != NULL )
   {
     delete[] eventBuffer;
     eventBuffer = NULL;
   }
 
-  //...and create new buffer for the new vst events 
+  //...and create new buffer for the new vst events
   eventBufferLength = ev->numEvents;
   if( eventBufferLength > 0 )
     eventBuffer = new VstEvent[eventBufferLength];
@@ -177,7 +176,7 @@ void Open303VST::setProgram(VstInt32 program)
 {
 	if(program < 0 || program >= numPrograms)
 		return;
-	
+
 	Open303VSTProgram *ap = &programs[program];
 	curProgram             = program;
   for(int i=0; i<OPEN303_NUM_PARAMETERS; i++)
@@ -217,54 +216,54 @@ void Open303VST::setParameter (VstInt32 index, float value)
 	switch(index)
 	{
   case WAVEFORM:
-    open303Core.setWaveform( linToLin(value, 0.0, 1.0,   0.0,      1.0) );  
+    open303Core.setWaveform( linToLin(value, 0.0, 1.0,   0.0,      1.0) );
     break;
-  case TUNING:    
-    open303Core.setTuning(   linToLin(value, 0.0, 1.0,  400.0,    480.0) );  
+  case TUNING:
+    open303Core.setTuning(   linToLin(value, 0.0, 1.0,  400.0,    480.0) );
     break;
-  case CUTOFF:       
-    open303Core.setCutoff(   linToExp(value, 0.0, 1.0, 314.0,    2394.0) );  
+  case CUTOFF:
+    open303Core.setCutoff(   linToExp(value, 0.0, 1.0, 314.0,    2394.0) );
     break;
-  case RESONANCE:    
-    open303Core.setResonance(linToLin(value, 0.0, 1.0,   0.0,    100.0) );  
+  case RESONANCE:
+    open303Core.setResonance(linToLin(value, 0.0, 1.0,   0.0,    100.0) );
     break;
   case ENVMOD:
-    open303Core.setEnvMod(   linToLin(value, 0.0, 1.0,    0.0,   100.0)  );  
+    open303Core.setEnvMod(   linToLin(value, 0.0, 1.0,    0.0,   100.0)  );
     break;
   case DECAY:
-    open303Core.setDecay(    linToExp(value, 0.0, 1.0,  200.0,  2000.0) );  
+    open303Core.setDecay(    linToExp(value, 0.0, 1.0,  200.0,  2000.0) );
     break;
-  case ACCENT:       
-    open303Core.setAccent(   linToLin(value, 0.0, 1.0,   0.0,    100.0) );  
+  case ACCENT:
+    open303Core.setAccent(   linToLin(value, 0.0, 1.0,   0.0,    100.0) );
     break;
-  case VOLUME: 
-    open303Core.setVolume(   linToLin(value, 0.0, 1.0, -60.0,      0.0)  ); 
+  case VOLUME:
+    open303Core.setVolume(   linToLin(value, 0.0, 1.0, -60.0,      0.0)  );
     break;
-  case FILTER_TYPE: 
+  case FILTER_TYPE:
       open303Core.filter.setMode(  normalizedValueToIndex(value, TeeBeeFilter::NUM_MODES) );
     break;
 
 #ifdef SHOW_INTERNAL_PARAMETERS
-  case AMP_SUSTAIN: 
-    open303Core.setAmpSustain(        linToLin(value, 0.0, 1.0, -60.0,      0.0)  ); 
+  case AMP_SUSTAIN:
+    open303Core.setAmpSustain(        linToLin(value, 0.0, 1.0, -60.0,      0.0)  );
     break;
-  case TANH_SHAPER_DRIVE: 
-    open303Core.setTanhShaperDrive(   linToLin(value, 0.0, 1.0,   0.0,     60.0)  ); 
+  case TANH_SHAPER_DRIVE:
+    open303Core.setTanhShaperDrive(   linToLin(value, 0.0, 1.0,   0.0,     60.0)  );
     break;
-  case TANH_SHAPER_OFFSET: 
-    open303Core.setTanhShaperOffset(  linToLin(value, 0.0, 1.0, -10.0,     10.0)  ); 
+  case TANH_SHAPER_OFFSET:
+    open303Core.setTanhShaperOffset(  linToLin(value, 0.0, 1.0, -10.0,     10.0)  );
     break;
-  case PRE_FILTER_HPF: 
-    open303Core.setPreFilterHighpass( linToExp(value, 0.0, 1.0,  10.0,    500.0)  ); 
+  case PRE_FILTER_HPF:
+    open303Core.setPreFilterHighpass( linToExp(value, 0.0, 1.0,  10.0,    500.0)  );
     break;
-  case FEEDBACK_HPF: 
-    open303Core.setFeedbackHighpass(  linToExp(value, 0.0, 1.0,  10.0,    500.0)  ); 
+  case FEEDBACK_HPF:
+    open303Core.setFeedbackHighpass(  linToExp(value, 0.0, 1.0,  10.0,    500.0)  );
     break;
-  case POST_FILTER_HPF: 
-    open303Core.setPostFilterHighpass(linToExp(value, 0.0, 1.0,  10.0,    500.0)  ); 
+  case POST_FILTER_HPF:
+    open303Core.setPostFilterHighpass(linToExp(value, 0.0, 1.0,  10.0,    500.0)  );
     break;
-  case SQUARE_PHASE_SHIFT: 
-    open303Core.setSquarePhaseShift(  linToLin(value, 0.0, 1.0,   0.0,    360.0)  ); 
+  case SQUARE_PHASE_SHIFT:
+    open303Core.setSquarePhaseShift(  linToLin(value, 0.0, 1.0,   0.0,    360.0)  );
     break;
 #endif
 
@@ -318,7 +317,7 @@ void Open303VST::getParameterDisplay(VstInt32 index, char* text)
   }
 
 	switch (index)
-	{	
+	{
     // \todo: using sprintf is unsafe because it may write beyond the char-arrray boundary
     // ...but float2string from the vst-sdk creates a messed up string - mmmhhhh
   case WAVEFORM:  sprintf(text, "%.2f", open303Core.getWaveform());    break;
@@ -372,15 +371,15 @@ void Open303VST::getParameterName (VstInt32 index, char* label)
 {
 	switch(index)
 	{
-		case WAVEFORM:         vst_strncpy(label, "Waveform",      kVstMaxParamStrLen);	    break; 
-		case TUNING:           vst_strncpy(label, "Tuning",        kVstMaxParamStrLen);	    break; 
-		case CUTOFF:           vst_strncpy(label, "Cutoff",        kVstMaxParamStrLen);	    break; 
-		case RESONANCE:        vst_strncpy(label, "Resonance",     kVstMaxParamStrLen);	    break; 
-		case ENVMOD:           vst_strncpy(label, "EnvMod",        kVstMaxParamStrLen);	    break; 
-		case DECAY:            vst_strncpy(label, "Decay",         kVstMaxParamStrLen);	    break; 
-		case ACCENT:           vst_strncpy(label, "Accent",        kVstMaxParamStrLen);	    break;      
+		case WAVEFORM:         vst_strncpy(label, "Waveform",      kVstMaxParamStrLen);	    break;
+		case TUNING:           vst_strncpy(label, "Tuning",        kVstMaxParamStrLen);	    break;
+		case CUTOFF:           vst_strncpy(label, "Cutoff",        kVstMaxParamStrLen);	    break;
+		case RESONANCE:        vst_strncpy(label, "Resonance",     kVstMaxParamStrLen);	    break;
+		case ENVMOD:           vst_strncpy(label, "EnvMod",        kVstMaxParamStrLen);	    break;
+		case DECAY:            vst_strncpy(label, "Decay",         kVstMaxParamStrLen);	    break;
+		case ACCENT:           vst_strncpy(label, "Accent",        kVstMaxParamStrLen);	    break;
 		case VOLUME:           vst_strncpy(label, "Volume",        kVstMaxParamStrLen);	    break;
-		case FILTER_TYPE:      vst_strncpy(label, "FilterMode",    kVstMaxParamStrLen);	    break; 
+		case FILTER_TYPE:      vst_strncpy(label, "FilterMode",    kVstMaxParamStrLen);	    break;
 
 #ifdef SHOW_INTERNAL_PARAMETERS
 		case AMP_SUSTAIN:           vst_strncpy(label, "AmpSustain",    kVstMaxParamStrLen);	 break;
@@ -450,8 +449,8 @@ bool Open303VST::getProductString (char* text)
 }
 
 VstInt32 Open303VST::getVendorVersion ()
-{ 
-	return 1000; 
+{
+	return 1000;
 }
 
 VstInt32 Open303VST::canDo (char* text)
@@ -474,7 +473,7 @@ void Open303VST::handleEvent(VstMidiEvent midiEvent)
   long status = midiData[0] & 0xf0;
 
   // respond to note-on and note-off on channel 1:
-  if( status == 0x90 || status == 0x80 )	
+  if( status == 0x90 || status == 0x80 )
   {
     // bitwise AND with 0x7f=01111111 sets the first bit of an 8-bit word to zero, allowing
     // only numbers from 0 to 127 to pass unchanged, higher numbers (128-255) will be mapped
@@ -500,7 +499,7 @@ void Open303VST::handleEvent(VstMidiEvent midiEvent)
   }
 
   // respond to MIDI-Controllers on channel 1:
-  else if( status == 0xb0 )	
+  else if( status == 0xb0 )
   {
     switch( midiData[1] )
     {
@@ -535,7 +534,7 @@ double Open303VST::convertToPitch(unsigned char highByte,unsigned char lowByte)
   bendValue   = (unsigned short) lowByte;
   bendValue <<= 7;
   bendValue  |= (unsigned short) highByte;
-    // bendValue now holds a value between 0x0000 and 0x3FFF where 0x2000 means: pitch wheel is 
+    // bendValue now holds a value between 0x0000 and 0x3FFF where 0x2000 means: pitch wheel is
     // centered
 
   pitchValue = (double)bendValue - 8192;   // pitchValue is between -8192 and +8191

@@ -12,7 +12,7 @@ MidiNoteEvent::MidiNoteEvent()
   priority  = 0;
 }
 
-MidiNoteEvent::MidiNoteEvent(int initKey, int initVel, int initDetune, int initPriority) 
+MidiNoteEvent::MidiNoteEvent(int initKey, int initVel, int initDetune, int initPriority)
 {
   if( initKey >=0 && initKey <= 127)
     key = initKey;

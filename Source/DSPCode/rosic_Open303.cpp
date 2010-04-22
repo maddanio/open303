@@ -9,10 +9,10 @@ Open303::Open303()
   tuning           =   440.0;
   ampScaler        =     1.0;
   oscFreq          =   440.0;
-  sampleRate       = 44100.0;     
-  level            =   -12.0;       
-  levelByVel       =    12.0;    
-  accent           =     0.0;      
+  sampleRate       = 44100.0;
+  level            =   -12.0;
+  levelByVel       =    12.0;
+  accent           =     0.0;
   slideTime        =    60.0;
   cutoff           =  1000.0;
   envUpFraction    =     2.0/3.0;
@@ -33,9 +33,9 @@ Open303::Open303()
   setEnvMod(25.0);
 
   oscillator.setWaveTable1(&waveTable1);
-  oscillator.setWaveForm1(WaveTable::SAW303);
+  oscillator.setWaveForm1(MipMappedWaveTable::SAW303);
   oscillator.setWaveTable2(&waveTable2);
-  oscillator.setWaveForm2(WaveTable::SQUARE303);
+  oscillator.setWaveForm2(MipMappedWaveTable::SQUARE303);
 
   //mainEnv.setNormalizeSum(true);
   mainEnv.setNormalizeSum(false);
@@ -47,7 +47,10 @@ Open303::Open303()
   ampEnv.setTauScale(1.0);
 
   pitchSlewLimiter.setTimeConstant(60.0);
-  ampDeClicker.setTimeConstant(2.0);
+  //ampDeClicker.setTimeConstant(2.0);
+  ampDeClicker.setMode(BiquadFilter::LOWPASS12);
+  ampDeClicker.setGain( amp2dB(sqrt(0.5)) );
+  ampDeClicker.setFrequency(200.0);
 
   rc1.setTimeConstant(0.0);
   rc2.setTimeConstant(15.0);
@@ -67,7 +70,7 @@ Open303::Open303()
   notch.setFrequency(7.5164);
   notch.setBandwidth(4.7);
 
-  filter.setFeedbackHighpassCutoff(150.0);      
+  filter.setFeedbackHighpassCutoff(150.0);
 }
 
 Open303::~Open303()
@@ -99,8 +102,8 @@ void Open303::setSampleRate(double newSampleRate)
 }
 
 void Open303::setCutoff(double newCutoff)
-{ 
-  cutoff = newCutoff; 
+{
+  cutoff = newCutoff;
   calculateEnvModScalerAndOffset();
 }
 
@@ -159,7 +162,7 @@ void Open303::noteOn(int noteNumber, int velocity, double detune)
       slideToNextNote  = false;
       currentNote      = noteNumber;
       currentVel       = velocity;
-    }  
+    }
     idle = false;
     return;
   }
@@ -179,17 +182,17 @@ void Open303::noteOn(int noteNumber, int velocity, double detune)
       currentVel  = noteList.front().getVelocity();
     }
     releaseNote(noteNumber);
-  } 
+  }
   else // velocity was not zero, so this is an actual note-on
   {
-    // check if the note-list is empty (indicating that currently no note is playing) - if so, 
+    // check if the note-list is empty (indicating that currently no note is playing) - if so,
     // trigger a new note, otherwise, slide to the new note:
     if( noteList.empty() )
       triggerNote(noteNumber, velocity >= 100);
-    else 
+    else
       slideToNote(noteNumber, velocity >= 100);
 
-    currentNote = noteNumber;  
+    currentNote = noteNumber;
     currentVel  = 64;
 
     // and we need to add the new note to our list, of course:
@@ -210,7 +213,7 @@ void Open303::allNotesOff()
 void Open303::triggerNote(int noteNumber, bool hasAccent)
 {
   // retrigger osc and reset filter buffers only if amplitude is near zero (to avoid clicks):
-  if( ampEnv.endIsReached() )
+  if( idle )
   {
     oscillator.resetPhase();
     filter.reset();
@@ -219,15 +222,16 @@ void Open303::triggerNote(int noteNumber, bool hasAccent)
     allpass.reset();
     notch.reset();
     antiAliasFilter.reset();
+    ampDeClicker.reset();
   }
 
-  if( hasAccent )  
+  if( hasAccent )
   {
     accentGain = accent;
     setMainEnvDecay(accentDecay);
     ampEnv.setRelease(accentAmpRelease);
   }
-  else                  
+  else
   {
     accentGain = 0.0;
     setMainEnvDecay(normalDecay);
@@ -235,7 +239,7 @@ void Open303::triggerNote(int noteNumber, bool hasAccent)
   }
 
   oscFreq = pitchToFreq(noteNumber, tuning);
-  pitchSlewLimiter.setState(oscFreq); 
+  pitchSlewLimiter.setState(oscFreq);
   mainEnv.trigger();
   ampEnv.noteOn(true, noteNumber, 64);
   idle = false;
@@ -245,13 +249,13 @@ void Open303::slideToNote(int noteNumber, bool hasAccent)
 {
   oscFreq = pitchToFreq(noteNumber, tuning);
 
-  if( hasAccent )  
+  if( hasAccent )
   {
     accentGain = accent;
     setMainEnvDecay(accentDecay);
     ampEnv.setRelease(accentAmpRelease);
   }
-  else                  
+  else
   {
     accentGain = 0.0;
     setMainEnvDecay(normalDecay);
@@ -262,7 +266,7 @@ void Open303::slideToNote(int noteNumber, bool hasAccent)
 
 void Open303::releaseNote(int noteNumber)
 {
-  // check if the note-list is empty now. if so, trigger a release, otherwise slide to the note 
+  // check if the note-list is empty now. if so, trigger a release, otherwise slide to the note
   // at the beginning of the list (this is the most recent one which is still in the list). this
   // initiates a slide back to the most recent note that is still being held:
   if( noteList.empty() )
@@ -309,8 +313,8 @@ void Open303::calculateEnvModScalerAndOffset()
   }
   else
   {
-    double upRatio   = pitchOffsetToFreqFactor(      envUpFraction *envMod); 
-    double downRatio = pitchOffsetToFreqFactor(-(1.0-envUpFraction)*envMod); 
+    double upRatio   = pitchOffsetToFreqFactor(      envUpFraction *envMod);
+    double downRatio = pitchOffsetToFreqFactor(-(1.0-envUpFraction)*envMod);
     envScaler        = upRatio - downRatio;
     if( envScaler != 0.0 ) // avoid division by zero
       envOffset = - (downRatio - 1.0) / (upRatio - downRatio);
@@ -321,14 +325,14 @@ void Open303::calculateEnvModScalerAndOffset()
 
 void Open303::updateNormalizer1()
 {
-  n1 = LeakyIntegrator::getNormalizer(mainEnv.getDecayTimeConstant(), rc1.getTimeConstant(), 
+  n1 = LeakyIntegrator::getNormalizer(mainEnv.getDecayTimeConstant(), rc1.getTimeConstant(),
     sampleRate);
   n1 = 1.0; // test
 }
 
 void Open303::updateNormalizer2()
 {
-  n2 = LeakyIntegrator::getNormalizer(mainEnv.getDecayTimeConstant(), rc2.getTimeConstant(), 
+  n2 = LeakyIntegrator::getNormalizer(mainEnv.getDecayTimeConstant(), rc2.getTimeConstant(),
     sampleRate);
   n2 = 1.0; // test
 }

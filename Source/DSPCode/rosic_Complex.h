@@ -14,7 +14,7 @@ namespace rosic
 
   ATTENTION: do not define any further member variables, nor switch the ordering of re and im 
   because the FourierTransformer classes rely on the fact that a complex number consists of two 
-  doubles re,im and nothing else (the algorithms actually run on buffers of doubles).
+  doubles re, im and nothing else (the algorithms actually run on buffers of doubles).
 
   */
 

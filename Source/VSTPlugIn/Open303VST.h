@@ -5,7 +5,7 @@
 #include "../DSPCode/rosic_Open303.h"
 using namespace rosic;
 
-#define SHOW_INTERNAL_PARAMETERS // comment this for builds that should only show 'user'-parameters
+//#define SHOW_INTERNAL_PARAMETERS // comment this for builds that should only show 'user'-parameters
 
 enum Open303Parameters
 {

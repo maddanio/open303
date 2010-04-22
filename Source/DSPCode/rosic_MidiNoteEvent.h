@@ -10,7 +10,7 @@ namespace rosic
 
   */
 
-  class MidiNoteEvent  
+  class MidiNoteEvent
   {
 
   public:
@@ -19,13 +19,13 @@ namespace rosic
     // construction/destruction:
 
     /** Default constructor. */
-    MidiNoteEvent();          
+    MidiNoteEvent();
 
     /** Constructor with initializations. */
-    MidiNoteEvent(int initKey, int initVel, int initDetune = 0.0, int initPriority = 0 ); 
+    MidiNoteEvent(int initKey, int initVel, int initDetune = 0, int initPriority = 0 );
 
     /** Destructor. */
-    ~MidiNoteEvent(); 
+    ~MidiNoteEvent();
 
     //---------------------------------------------------------------------------------------------
     // parameter settings:
@@ -61,7 +61,7 @@ namespace rosic
     // overloaded operators:
 
     /** Note events are interpreted as equal if the have the same key. */
-    bool operator==(const MidiNoteEvent& note2) const  
+    bool operator==(const MidiNoteEvent& note2) const
     {
       if( note2.key == key )
         return true;
@@ -73,7 +73,7 @@ namespace rosic
 
     int    key;       // key of the note in the range 0...127
     int    vel;       // velocity of the note in the range 0...127
-    double detune;    // detuning in cents (for microtuning) 
+    double detune;    // detuning in cents (for microtuning)
     int    priority;  // a priority value
 
   };

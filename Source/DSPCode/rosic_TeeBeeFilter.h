@@ -109,7 +109,7 @@ namespace rosic
     //---------------------------------------------------------------------------------------------
     // others:
 
-    /** Causes the filter to re-calculate the coeffiecients. */
+    /** Causes the filter to re-calculate the coeffiecients via the exact formulas. */
     INLINE void calculateCoefficientsExact();
 
     /** Causes the filter to re-calculate the coeffiecients using an approximation that is valid
@@ -130,6 +130,7 @@ namespace rosic
     double y1, y2, y3, y4;      // output signals of the 4 filter stages 
     double c0, c1, c2, c3, c4;  // coefficients for combining various ouput stages
     double k;                   // feedback factor in the loop
+    double g;                   // output gain
     double driveFactor;         // filter drive as raw factor
     double cutoff;              // cutoff frequency
     double drive;               // filter drive in decibels
@@ -144,8 +145,7 @@ namespace rosic
   };
 
   //-----------------------------------------------------------------------------------------------
-  // from here: definitions of the functions to be inlined, i.e. all functions which are supposed 
-  // to be called at audio-rate (they can't be put into the .cpp file):
+  // inlined functions:
 
   INLINE void TeeBeeFilter::setCutoff(double newCutoff, bool updateCoefficients)
   {
@@ -251,9 +251,18 @@ namespace rosic
     tmp  = wc2*tmp + pr3*wc + pr2;
     tmp  = wc2*tmp + pr1*wc + pr0; // this is now the scale factor
     k    = r * tmp;
+    g    = 1.0;
 
     if( mode == TB_303 )
-      k *= (17.0/4.0);
+    {
+      double fx = wc * ONE_OVER_SQRT2/(2*PI); 
+      b0 = (0.00045522346 + 6.1922189 * fx) / (1.0 + 12.358354 * fx + 4.4156345 * (fx * fx)); 
+      k  = fx*(fx*(fx*(fx*(fx*(fx+7198.6997)-5837.7917)-476.47308)+614.95611)+213.87126)+16.998792; 
+      g  = k * 0.058823529411764705882352941176471; // 17 reciprocal 
+      g  = (g - 1.0) * r + 1.0;                     // r is 0 to 1.0
+      g  = (g * (1.0 + r)); 
+      k  = k * r;                                   // k is ready now 
+    }
   }
 
   INLINE double TeeBeeFilter::shape(double x)
@@ -282,7 +291,8 @@ namespace rosic
       y2 +=   b0*(y1-2*y2+y3);
       y3 +=   b0*(y2-2*y3+y4);
       y4 +=   b0*(y3-2*y4);
-      return 3*y4;
+      return 2*g*y4;
+      //return 3*y4;
     }
 
     // apply drive and feedback to obtain the filter's input signal:

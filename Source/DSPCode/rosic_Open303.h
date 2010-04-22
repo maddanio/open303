@@ -22,8 +22,6 @@ namespace rosic
   This is a monophonic bass-synth that aims to emulate the sound of the famous Roland TB 303 and
   goes a bit beyond.
 
-  © Robin Schmidt (www.rs-met.com)
-
   */
 
   class Open303
@@ -238,12 +236,14 @@ namespace rosic
     //-----------------------------------------------------------------------------------------------
     // embedded objects: 
 
-    WaveTable                 waveTable1, waveTable2;
+    MipMappedWaveTable        waveTable1, waveTable2;
     BlendOscillator           oscillator;
     TeeBeeFilter              filter;
     AnalogEnvelope            ampEnv; 
     DecayEnvelope             mainEnv;
-    LeakyIntegrator           pitchSlewLimiter, ampDeClicker;
+    LeakyIntegrator           pitchSlewLimiter;
+    //LeakyIntegrator           ampDeClicker;
+    BiquadFilter              ampDeClicker;
     LeakyIntegrator           rc1, rc2;
     OnePoleFilter             highpass1, highpass2, allpass; 
     BiquadFilter              notch;
@@ -312,8 +312,7 @@ namespace rosic
   };
 
   //-------------------------------------------------------------------------------------------------
-  // from here: definitions of the functions to be inlined, i.e. all functions which are supposed to 
-  // be called at audio-rate (they can't be put into the .cpp file):
+  // inlined functions:
 
   INLINE double Open303::getSample()
   {
@@ -389,7 +388,7 @@ namespace rosic
       tmp  = highpass1.getSample(tmp);        // pre-filter highpass
       tmp  = filter.getSample(tmp);           // now it's filtered
       tmp  = antiAliasFilter.getSample(tmp);  // anti-aliasing filtered
-      tmp *= ampEnvOut;                       // amplified
+
     }
 
     // these filters may actually operate without oversampling (but only if we reset them in
@@ -397,11 +396,13 @@ namespace rosic
     tmp  = allpass.getSample(tmp);
     tmp  = highpass2.getSample(tmp);        
     tmp  = notch.getSample(tmp);
+    tmp *= ampEnvOut;                       // amplified
     tmp *= ampScaler;
 
     // find out whether we may switch ourselves off for the next call:
-    idle = (sequencer.getSequencerMode() == AcidSequencer::OFF && ampEnv.endIsReached() 
-            && fabs(tmp) < 0.000001); // ampEnvOut < 0.000001;
+    idle = false;
+    //idle = (sequencer.getSequencerMode() == AcidSequencer::OFF && ampEnv.endIsReached() 
+    //        && fabs(tmp) < 0.000001); // ampEnvOut < 0.000001;
 
     return tmp;
   }

@@ -2,7 +2,7 @@
 #define rosic_BlendOscillator_h
 
 // rosic-indcludes:
-#include "rosic_WaveTable.h"
+#include "rosic_MipMappedWaveTable.h"
 
 namespace rosic
 {
@@ -48,10 +48,10 @@ namespace rosic
     oscillator. Not to have "our own" WaveTable-object as member-variable avoids the need to have 
     the same waveform for different synth-voices multiple times in the memory. This function sets 
     the 1st wavetable. */
-    void setWaveTable1(WaveTable* newWaveTable1);
+    void setWaveTable1(MipMappedWaveTable* newWaveTable1);
 
     /** Sets the 2nd wavetable. @see setWaveTable1 */
-    void setWaveTable2(WaveTable* newWaveTable2);
+    void setWaveTable2(MipMappedWaveTable* newWaveTable2);
 
     /** Sets the blend/mix factor between the two waveforms. The value is expected between 0...1
     where 0 means waveform1 only, 1 means waveform2 only - in between there will be a linear blend
@@ -110,13 +110,12 @@ namespace rosic
     double sampleRate;        // the samplerate
     double sampleRateRec;     // 1/sampleRate
 
-    WaveTable *waveTable1, *waveTable2; // the 2 wavetables between which we blend
+    MipMappedWaveTable *waveTable1, *waveTable2; // the 2 wavetables between which we blend
 
   };
 
   //-----------------------------------------------------------------------------------------------
-  // from here: definitions of the functions to be inlined, i.e. all functions which are supposed 
-  // to be called at audio-rate (they can't be put into the .cpp file):
+  // inlined functions:
 
   INLINE void BlendOscillator::setFrequency(double newFrequency)
   {

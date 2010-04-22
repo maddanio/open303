@@ -7,8 +7,8 @@ using namespace rosic;
 BlendOscillator::BlendOscillator()
 {
   // init member variables:
-  tableLengthDbl       = (double) WaveTable::tableLength;  // typecasted version
-  sampleRate           = 44100.0; 
+  tableLengthDbl       = (double) MipMappedWaveTable::tableLength;  // typecasted version
+  sampleRate           = 44100.0;
   freq                 = 440.0;
   increment            = (tableLengthDbl*freq)/sampleRate;
   phaseIndex           = 0.0;
@@ -21,8 +21,8 @@ BlendOscillator::BlendOscillator()
   setFrequency (440.0);            // frequency = 440 Hz by default
   setStartPhase(0.0);              // sartPhase = 0 by default
 
-  setWaveForm1(WaveTable::SAW);  
-  setWaveForm2(WaveTable::SQUARE); 
+  setWaveForm1(MipMappedWaveTable::SAW);
+  setWaveForm2(MipMappedWaveTable::SQUARE);
 
   resetPhase();
 }
@@ -40,7 +40,7 @@ void BlendOscillator::setSampleRate(double newSampleRate)
   if( newSampleRate > 0.0 )
     sampleRate = newSampleRate;
   sampleRateRec = 1.0 / sampleRate;
-  increment = tableLengthDbl*freq*sampleRateRec; 
+  increment = tableLengthDbl*freq*sampleRateRec;
 }
 
 void BlendOscillator::setWaveForm1(int newWaveForm1)
@@ -55,12 +55,12 @@ void BlendOscillator::setWaveForm2(int newWaveForm2)
     waveTable2->setWaveform(newWaveForm2);
 }
 
-void BlendOscillator::setWaveTable1(WaveTable* newWaveTable1)
+void BlendOscillator::setWaveTable1(MipMappedWaveTable* newWaveTable1)
 {
   waveTable1 = newWaveTable1;
 }
 
-void BlendOscillator::setWaveTable2(WaveTable* newWaveTable2)
+void BlendOscillator::setWaveTable2(MipMappedWaveTable* newWaveTable2)
 {
   waveTable2 = newWaveTable2;
 }
@@ -83,17 +83,3 @@ void BlendOscillator::setPhase(double PhaseIndex)
 {
   phaseIndex = startIndex+PhaseIndex;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-

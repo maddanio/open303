@@ -464,6 +464,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\Source\DSPCode\rosic_MipMappedWaveTable.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\DSPCode\rosic_MipMappedWaveTable.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\Source\DSPCode\rosic_NumberManipulations.cpp"
 				>
 			</File>
@@ -501,14 +509,6 @@
 			</File>
 			<File
 				RelativePath="..\..\Source\DSPCode\rosic_TeeBeeFilter.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Source\DSPCode\rosic_WaveTable.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Source\DSPCode\rosic_WaveTable.h"
 				>
 			</File>
 		</Filter>

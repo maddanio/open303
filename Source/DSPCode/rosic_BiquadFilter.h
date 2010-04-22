@@ -22,16 +22,16 @@ namespace rosic
     enum modes
     {
       BYPASS = 0,
-      PEAK,
-      LOW_SHELF,
-      HIGH_SHELF,
       LOWPASS6,
       LOWPASS12,
       HIGHPASS6,
       HIGHPASS12,
-      BANDREJECT,
       BANDPASS,
-      ALLPASS,
+      BANDREJECT,
+      PEAK,
+      LOW_SHELF,
+      //HIGH_SHELF,
+      //ALLPASS,
 
       NUM_FILTER_MODES
     };
@@ -104,8 +104,7 @@ namespace rosic
   };
 
   //-----------------------------------------------------------------------------------------------
-  // from here: definitions of the functions to be inlined, i.e. all functions which are supposed 
-  // to be called at audio-rate (they can't be put into the .cpp file):
+  // inlined functions:
 
   INLINE double BiquadFilter::getSample(double in)
   {

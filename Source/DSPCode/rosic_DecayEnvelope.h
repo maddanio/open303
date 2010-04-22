@@ -82,8 +82,7 @@ namespace rosic
   };
 
   //-----------------------------------------------------------------------------------------------
-  // from here: definitions of the functions to be inlined, i.e. all functions which are supposed 
-  // to be called at audio-rate (they can't be put into the .cpp file):
+  // inlined functions:
 
   INLINE double DecayEnvelope::getSample()
   {
