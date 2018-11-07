@@ -25,7 +25,6 @@ Open303::Open303()
   accentGain       =     0.0;
   pitchWheelFactor =     1.0;
   currentNote      =    -1;
-  currentVel       =     0;
   noteOffCountDown =     0;
   slideToNextNote  = false;
   idle             = true;
@@ -141,7 +140,7 @@ void Open303::setPitchBend(double newPitchBend)
 //------------------------------------------------------------------------------------------------------------
 // others:
 
-void Open303::noteOn(int noteNumber, int velocity, double detune)
+void Open303::noteOn(int noteNumber, int velocity)
 {
   if( sequencer.modeWasChanged() )
     allNotesOff();
@@ -153,7 +152,6 @@ void Open303::noteOn(int noteNumber, int velocity, double detune)
       sequencer.stop();
       releaseNote(currentNote);
       currentNote = -1;
-      currentVel  = 0;
     }
     else
     {
@@ -161,7 +159,6 @@ void Open303::noteOn(int noteNumber, int velocity, double detune)
       noteOffCountDown = std::numeric_limits<int>::max();
       slideToNextNote  = false;
       currentNote      = noteNumber;
-      currentVel       = velocity;
     }
     idle = false;
     return;
@@ -174,12 +171,10 @@ void Open303::noteOn(int noteNumber, int velocity, double detune)
     if( noteList.empty() )
     {
       currentNote = -1;
-      currentVel  = 0;
     }
     else
     {
       currentNote = noteList.front().getKey();
-      currentVel  = noteList.front().getVelocity();
     }
     releaseNote(noteNumber);
   }
@@ -193,7 +188,6 @@ void Open303::noteOn(int noteNumber, int velocity, double detune)
       slideToNote(noteNumber, velocity >= 100);
 
     currentNote = noteNumber;
-    currentVel  = 64;
 
     // and we need to add the new note to our list, of course:
     MidiNoteEvent newNote(noteNumber, velocity);
@@ -207,7 +201,6 @@ void Open303::allNotesOff()
   noteList.clear();
   ampEnv.noteOff();
   currentNote = -1;
-  currentVel  = 0;
 }
 
 void Open303::triggerNote(int noteNumber, bool hasAccent)

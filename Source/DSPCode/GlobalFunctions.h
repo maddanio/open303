@@ -377,14 +377,12 @@ INLINE int normalizedValueToIndex(float normalizedValue, int numIndices)
 
 INLINE double pitchOffsetToFreqFactor(double pitchOffset)
 {
-  return exp(0.057762265046662109118102676788181 * pitchOffset);
-  //return pow(2.0, pitchOffset/12.0); // naive, slower but numerically more precise
+  return pow(2.0, pitchOffset/12.0); // naive, slower but numerically more precise
 }
 
 INLINE double pitchToFreq(double pitch)
 {
-  return 8.1757989156437073336828122976033 * exp(0.057762265046662109118102676788181*pitch);
-  //return 440.0*( pow(2.0, (pitch-69.0)/12.0) ); // naive, slower but numerically more precise
+  return 440.0*( pow(2.0, (pitch-69.0)/12.0) ); // naive, slower but numerically more precise
 }
 
 INLINE double pitchToFreq(double pitch, double masterTuneA4)

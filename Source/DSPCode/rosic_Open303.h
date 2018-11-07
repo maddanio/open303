@@ -225,8 +225,8 @@ namespace rosic
     // event handling:
 
     /** Accepts note-on events (note offs are also handled here as note ons with velocity zero). */ 
-    void noteOn(int noteNumber, int velocity, double detune);
-
+    void noteOn(int noteNumber, int velocity);
+    
     /** Turns all possibly running notes off. */
     void allNotesOff();
 
@@ -302,7 +302,6 @@ namespace rosic
     double pitchWheelFactor; // scale factor for oscillator frequency from pitch-wheel
     double n1, n2;           // normalizers for the RCs that are driven by the MEG
     int    currentNote;      // note which is currently played (-1 if none)
-    int    currentVel;       // velocity of currently played note
     int    noteOffCountDown; // a countdown variable till next note-off in sequencer mode
     bool   slideToNextNote;  // indicate that we need to slide to the next note in sequencer mode
     bool   idle;             // flag to indicate that we have currently nothing to do in getSample
