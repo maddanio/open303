@@ -1,0 +1,45 @@
+cmake_minimum_required(VERSION 3.6.3 FATAL_ERROR)
+project(open303)
+
+add_library(open303
+     Source/DSPCode/GlobalDefinitions.h
+     Source/DSPCode/GlobalFunctions.cpp
+     Source/DSPCode/GlobalFunctions.h
+     Source/DSPCode/fft4g.c
+     Source/DSPCode/rosic_AcidPattern.cpp
+     Source/DSPCode/rosic_AcidPattern.h
+     Source/DSPCode/rosic_AcidSequencer.cpp
+     Source/DSPCode/rosic_AcidSequencer.h
+     Source/DSPCode/rosic_AnalogEnvelope.cpp
+     Source/DSPCode/rosic_AnalogEnvelope.h
+     Source/DSPCode/rosic_BiquadFilter.cpp
+     Source/DSPCode/rosic_BiquadFilter.h
+     Source/DSPCode/rosic_BlendOscillator.cpp
+     Source/DSPCode/rosic_BlendOscillator.h
+     Source/DSPCode/rosic_Complex.cpp
+     Source/DSPCode/rosic_Complex.h
+     Source/DSPCode/rosic_DecayEnvelope.cpp
+     Source/DSPCode/rosic_DecayEnvelope.h
+     Source/DSPCode/rosic_EllipticQuarterBandFilter.cpp
+     Source/DSPCode/rosic_EllipticQuarterBandFilter.h
+     Source/DSPCode/rosic_FourierTransformerRadix2.cpp
+     Source/DSPCode/rosic_FourierTransformerRadix2.h
+     Source/DSPCode/rosic_FunctionTemplates.cpp
+     Source/DSPCode/rosic_FunctionTemplates.h
+     Source/DSPCode/rosic_LeakyIntegrator.cpp
+     Source/DSPCode/rosic_LeakyIntegrator.h
+     Source/DSPCode/rosic_MidiNoteEvent.cpp
+     Source/DSPCode/rosic_MidiNoteEvent.h
+     Source/DSPCode/rosic_MipMappedWaveTable.cpp
+     Source/DSPCode/rosic_MipMappedWaveTable.h
+     Source/DSPCode/rosic_NumberManipulations.cpp
+     Source/DSPCode/rosic_NumberManipulations.h
+     Source/DSPCode/rosic_OnePoleFilter.cpp
+     Source/DSPCode/rosic_OnePoleFilter.h
+     Source/DSPCode/rosic_Open303.cpp
+     Source/DSPCode/rosic_Open303.h
+     Source/DSPCode/rosic_RealFunctions.cpp
+     Source/DSPCode/rosic_RealFunctions.h
+     Source/DSPCode/rosic_TeeBeeFilter.cpp
+     Source/DSPCode/rosic_TeeBeeFilter.h    
+)

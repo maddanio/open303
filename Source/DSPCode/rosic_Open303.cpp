@@ -158,7 +158,7 @@ void Open303::noteOn(int noteNumber, int velocity, double detune)
     else
     {
       sequencer.start();
-      noteOffCountDown = INT_MAX;
+      noteOffCountDown = std::numeric_limits<int>::max();
       slideToNextNote  = false;
       currentNote      = noteNumber;
       currentVel       = velocity;

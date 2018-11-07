@@ -12,7 +12,7 @@
 #include "rosic_AcidSequencer.h"
 
 #include <list>
-using namespace std; // for the noteList
+#include <limits>
 
 namespace rosic
 {
@@ -219,7 +219,7 @@ namespace rosic
     // audio processing:
 
     /** Calculates onse output sample at a time. */
-    INLINE double getSample(); 
+    double getSample(); 
 
     //-----------------------------------------------------------------------------------------------
     // event handling:
@@ -307,14 +307,14 @@ namespace rosic
     bool   slideToNextNote;  // indicate that we need to slide to the next note in sequencer mode
     bool   idle;             // flag to indicate that we have currently nothing to do in getSample
 
-    list<MidiNoteEvent> noteList;
+    std::list<MidiNoteEvent> noteList;
 
   };
 
   //-------------------------------------------------------------------------------------------------
   // inlined functions:
 
-  INLINE double Open303::getSample()
+  inline double Open303::getSample()
   {
     //if( sequencer.getSequencerMode() == AcidSequencer::OFF && ampEnv.endIsReached() )
     //  return 0.0;
@@ -344,7 +344,7 @@ namespace rosic
           AcidNote* nextNote = sequencer.getNextScheduledNote();
           if( note->slide && nextNote->gate == true )
           {
-            noteOffCountDown = INT_MAX;
+            noteOffCountDown = std::numeric_limits<int>::max();
             slideToNextNote  = true;
           }
           else
