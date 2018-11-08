@@ -234,7 +234,7 @@ void Open303::triggerNote(int noteNumber, bool hasAccent)
   oscFreq = pitchToFreq(noteNumber, tuning);
   pitchSlewLimiter.setState(oscFreq);
   mainEnv.trigger();
-  ampEnv.noteOn(true, noteNumber, 64);
+  ampEnv.noteOn(true);
   idle = false;
 }
 

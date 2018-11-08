@@ -149,7 +149,7 @@ void AnalogEnvelope::reset()
   time = 0.0;
 }
 
-void AnalogEnvelope::noteOn(bool startFromCurrentLevel, int newKey, int newVel)
+void AnalogEnvelope::noteOn(bool startFromCurrentLevel)
 {
   if( !startFromCurrentLevel )
     previousOutput = startLevel;  // may lead to clicks

@@ -152,7 +152,7 @@ namespace rosic
     /** Causes the envelope to start with its attack-phase. When the parameter 
     'startFromCurrentValue' is true, the internal state will not be reset to startLevel, such that 
     the curve begins at the level, where the envelope currently is. */  
-    void noteOn(bool startFromCurrentLevel = false, int newKey = 64, int newVel = 64);
+    void noteOn(bool startFromCurrentLevel = false);
 
     /** Causes the envelope to start with its release-phase. */
     void noteOff();  
