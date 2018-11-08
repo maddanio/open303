@@ -63,10 +63,7 @@ namespace rosic
     /** Note events are interpreted as equal if the have the same key. */
     bool operator==(const MidiNoteEvent& note2) const
     {
-      if( note2.key == key )
-        return true;
-      else
-        return false;
+      return note2.key == key;
     }
 
   protected:

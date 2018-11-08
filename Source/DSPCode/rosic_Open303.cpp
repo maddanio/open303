@@ -1,4 +1,5 @@
 #include "rosic_Open303.h"
+
 using namespace rosic;
 
 //-------------------------------------------------------------------------------------------------
@@ -264,7 +265,6 @@ void Open303::releaseNote(int noteNumber)
   // initiates a slide back to the most recent note that is still being held:
   if( noteList.empty() )
   {
-    //filterEnvelope.noteOff();
     ampEnv.noteOff();
   }
   else
