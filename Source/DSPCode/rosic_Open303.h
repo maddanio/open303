@@ -376,7 +376,7 @@ namespace rosic
     double ampEnvOut = ampEnv.getSample();
     //ampEnvOut += 0.45*filterEnvOut + accentGain*6.8*filterEnvOut; 
     if( ampEnv.isNoteOn() )
-      ampEnvOut += 0.45*mainEnvOut + accentGain*4.0*mainEnvOut; 
+      ampEnvOut += (0.45 + 4 * accentGain) * mainEnvOut; 
     ampEnvOut = ampDeClicker.getSample(ampEnvOut);
 
     // oversampled calculations:
