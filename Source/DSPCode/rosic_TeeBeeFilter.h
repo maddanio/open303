@@ -283,8 +283,8 @@ namespace rosic
 
     if( mode == TB_303 )
     {
-      //y0  = in - feedbackHighpass.getSample(k * shape(y4));  
-      y0 = in - feedbackHighpass.getSample(k*y4);  
+      y0  = in - feedbackHighpass.getSample(k * shape(y4));  
+      //y0 = in - feedbackHighpass.getSample(k*y4);  
       //y0  = in - k*shape(y4);  
       //y0  = in-k*y4;  
       y1 += 2*b0*(y0-y1+y2);
