@@ -16,6 +16,6 @@ Libraries/vstsdk/
 └── vstplugmain.cpp
 ```
 
-Now create a directory `CMake` in the `Build` directory in the root of the project and run `cmake ../.. && make`. Copy the resulting `open303.so` file to a place where your DAW can find it.
+Now create a directory `CMake` in the `Build` directory in the root of the project, `cd` into that directory and run `cmake ../.. && make`. Copy the resulting `open303.so` file to a place where your DAW can find it.
 
 Thanks to the [Airwindows repository](https://github.com/airwindows/airwindows) for these instructions!
