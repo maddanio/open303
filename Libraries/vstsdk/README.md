@@ -1,4 +1,4 @@
-Get the Steinberg VST 2.4 SDK and copy it into the `Libraries/vstsdk` directory. The structure of the `Libraries/vstsdk` needs to be as follows:
+Get the Steinberg VST 2.4 SDK and extract it. Copy the files you need into `Libraries/vstsdk`. The structure of the `Libraries/vstsdk` directory needs to be as follows:
 
 ```
 Libraries/vstsdk/
