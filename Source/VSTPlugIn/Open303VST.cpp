@@ -521,7 +521,7 @@ void Open303VST::handleEvent(VstMidiEvent midiEvent)
 
 void Open303VST::noteOn(VstInt32 note, VstInt32 velocity, VstInt32 delta)
 {
-  open303Core.noteOn(note, velocity, 0.0);
+  open303Core.noteOn(note, velocity);
 }
 
 double Open303VST::convertToPitch(unsigned char highByte,unsigned char lowByte)

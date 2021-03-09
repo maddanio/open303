@@ -1,7 +1,7 @@
 #ifndef Open303VST_h
 #define Open303VST_h
 
-#include "public.sdk/source/vst2.x/audioeffectx.h"
+#include "audioeffectx.h"
 #include "../DSPCode/rosic_Open303.h"
 using namespace rosic;
 
