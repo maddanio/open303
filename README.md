@@ -4,7 +4,7 @@ Open303 is a free and open source emulation of the famous Roland TB-303 bass syn
 
 ## Installation
 ### Linux
-Get an older version of the [VST 3 Audio Plug-Ins SDK](https://web.archive.org/web/20181016150224/https://download.steinberg.net/sdk_downloads/vstsdk3610_11_06_2018_build_37.zip) that includes the copmplete VST 2 SDK and extract it. Copy the files from `VST_SDK/vst2sdk/public.sdk/source/vst2.x/` and `VST_SDK/VST2_SDK/pluginterfaces` into `Libraries/vstsdk`. The structure of the `Libraries/vstsdk` directory needs to be as follows:
+Get an older version of the [VST 3 Audio Plug-Ins SDK](https://web.archive.org/web/20181016150224/https://download.steinberg.net/sdk_downloads/vstsdk3610_11_06_2018_build_37.zip) that includes the complete VST 2 SDK and extract it. Copy the files from `VST_SDK/vst2sdk/public.sdk/source/vst2.x/` and `VST_SDK/VST2_SDK/pluginterfaces` into `Libraries/vstsdk`. The structure of the `Libraries/vstsdk` directory needs to be as follows:
 
 ```
 Libraries/vstsdk/
@@ -34,6 +34,7 @@ cd /path/to/open303
 mkdir Build/CMake
 cd Build/CMake
 cmake ../.. && make
+cp open303.so ~/.local/lib/lxvst/
 ```
 
 Thanks to the [Airwindows repository](https://github.com/airwindows/airwindows) for these instructions!
