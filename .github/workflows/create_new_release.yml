@@ -54,5 +54,5 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }} 
           asset_path: ${{ github.workspace }}/Build/open303.tar.gz
-          asset_name: open303.tar.gz
+          asset_name: open303-${{ github.ref }}.tar.gz
           asset_content_type: application/gzip
