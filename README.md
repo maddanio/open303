@@ -26,12 +26,11 @@ Now create a directory `CMake` in the `Build` directory in the root of the proje
 
 ```
 git clone https://github.com/autostatic/open303.git
-cd open303/Libraries/vstsdk
+cd open303
 wget "https://web.archive.org/web/20181016150224/https://download.steinberg.net/sdk_downloads/vstsdk3610_11_06_2018_build_37.zip" -O Libraries/vstsdk/vstsdk.zip
-unzip Libraries/vstsdk/vstsdk.zip
-cp VST_SDK/VST2_SDK/public.sdk/source/vst2.x/* ./
-cp -a VST_SDK/VST2_SDK/pluginterfaces ./
-cd /path/to/open303
+unzip Libraries/vstsdk/vstsdk.zip -d Libraries/vstsdk/
+cp Libraries/vstsdk/VST_SDK/VST2_SDK/public.sdk/source/vst2.x/* Libraries/vstsdk/
+cp -a Libraries/vstsdk/VST_SDK/VST2_SDK/pluginterfaces Libraries/vstsdk/
 mkdir Build/CMake
 cd Build/CMake
 cmake ../.. && make
