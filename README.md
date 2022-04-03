@@ -31,10 +31,9 @@ wget "https://web.archive.org/web/20181016150224/https://download.steinberg.net/
 unzip Libraries/vstsdk/vstsdk.zip -d Libraries/vstsdk/
 cp Libraries/vstsdk/VST_SDK/VST2_SDK/public.sdk/source/vst2.x/* Libraries/vstsdk/
 cp -a Libraries/vstsdk/VST_SDK/VST2_SDK/pluginterfaces Libraries/vstsdk/
-mkdir Build/CMake
-cd Build/CMake
-cmake ../.. && make
-cp open303.so ~/.local/lib/lxvst/
+cmake -B Build/CMake
+cmake --build Build/CMake
+cp Build/CMake/open303.so ~/.local/lib/lxvst/
 ```
 
 Thanks to the [Airwindows repository](https://github.com/airwindows/airwindows) for these instructions!
