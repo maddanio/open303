@@ -26,8 +26,8 @@ jobs:
 
       - name: Build
         run: |
-          cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
-          cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+          cmake -B ${{github.workspace}}/Build/CMake -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+          cmake --build ${{github.workspace}}/Build/CMake --config ${{env.BUILD_TYPE}}
 
       - name: Clean
         run: rm -rf ${{github.workspace}}/Libraries/vstsdk/
