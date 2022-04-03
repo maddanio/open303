@@ -1,5 +1,4 @@
 # Open303
-
 Open303 is a free and open source emulation of the famous Roland TB-303 bass synthesizer for the VST plugin interface (VST is a trademark of Steinberg Media Technologies GmbH). 
 
 ## Installation
