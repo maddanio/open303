@@ -14,5 +14,11 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+      - run: apt install unzip
+      - run: wget "https://web.archive.org/web/20181016150224/https://download.steinberg.net/sdk_downloads/vstsdk3610_11_06_2018_build_37.zip" -O ${{github.workspace}}/Libraries/vstsdk/vstsdk.zip
+      - run: unzip ${{github.workspace}}/Libraries/vstsdk/vstsdk.zip -d ${{github.workspace}}/Libraries/vstsdk/
+      - run: cp ${{github.workspace}}/Libraries/vstsdk/VST_SDK/VST2_SDK/public.sdk/source/vst2.x/* ${{github.workspace}}/Libraries/vstsdk/
+      - run: cp -a ${{github.workspace}}/Libraries/vstsdk/VST_SDK/VST2_SDK/pluginterfaces ${{github.workspace}}/Libraries/vstsdk/
       - run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
       - run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+      - run: rm -rf ${{github.workspace}}/Libraries/vstsdk/
