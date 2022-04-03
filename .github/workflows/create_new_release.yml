@@ -1,9 +1,9 @@
 name: create-new-release
 
 on:
-  workflow_dispatch
   push:
     branches: [ $default-branch ]
+  workflow_dispatch:
 
 env:
   BUILD_TYPE: Release
