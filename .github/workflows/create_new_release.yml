@@ -43,7 +43,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ github.ref }}
-          release_name: ${{ github.ref }}
+          release_name: ${{ github.ref_name }}
           draft: false
           prerelease: false
 
@@ -54,5 +54,5 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }} 
           asset_path: ${{ github.workspace }}/Build/open303.tar.gz
-          asset_name: open303-${{ github.ref.refs.tags }}.tar.gz
+          asset_name: open303-${{ github.ref_name }}.tar.gz
           asset_content_type: application/gzip
