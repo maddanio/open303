@@ -20,23 +20,21 @@ jobs:
       - name: Set up build env
         run: |
           sudo apt install unzip
-          wget "https://web.archive.org/web/20181016150224/https://download.steinberg.net/sdk_downloads/vstsdk3610_11_06_2018_build_37.zip" -O ${{github.workspace}}/Libraries/vstsdk/vstsdk.zip
-          unzip ${{github.workspace}}/Libraries/vstsdk/vstsdk.zip -d ${{github.workspace}}/Libraries/vstsdk/
-          cp ${{github.workspace}}/Libraries/vstsdk/VST_SDK/VST2_SDK/public.sdk/source/vst2.x/* ${{github.workspace}}/Libraries/vstsdk/
-          cp -a ${{github.workspace}}/Libraries/vstsdk/VST_SDK/VST2_SDK/pluginterfaces ${{github.workspace}}/Libraries/vstsdk/
+          wget "https://web.archive.org/web/20181016150224/https://download.steinberg.net/sdk_downloads/vstsdk3610_11_06_2018_build_37.zip" -O ${{ github.workspace }}/Libraries/vstsdk/vstsdk.zip
+          unzip ${{ github.workspace }}/Libraries/vstsdk/vstsdk.zip -d ${{ github.workspace }}/Libraries/vstsdk/
+          cp ${{ github.workspace }}/Libraries/vstsdk/VST_SDK/VST2_SDK/public.sdk/source/vst2.x/* ${{ github.workspace }}/Libraries/vstsdk/
+          cp -a ${{ github.workspace }}/Libraries/vstsdk/VST_SDK/VST2_SDK/pluginterfaces ${{ github.workspace }}/Libraries/vstsdk/
 
       - name: Build
         run: |
-          cmake -B ${{github.workspace}}/Build/CMake -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
-          cmake --build ${{github.workspace}}/Build/CMake --config ${{env.BUILD_TYPE}}
+          cmake -B ${{ github.workspace }}/Build/CMake -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+          cmake --build ${{ github.workspace }}/Build/CMake --config ${{env.BUILD_TYPE}}
 
       - name: Clean
-        run: rm -rf ${{github.workspace}}/Libraries/vstsdk/
+        run: rm -rf ${{ github.workspace }}/Libraries/vstsdk/
 
       - name: Prepare release
-        run: |
-          tar -czvf ${{github.workspace}}/Build/open303.tar.gz ${{github.workspace}}/Build/CMake/open303.so
-          sudo cp ${{github.workspace}}/Build/open303.tar.gz /open303.tar.gz
+        run: tar -C ${{ github.workspace }}/Build/CMake/ -czvf ${{ github.workspace }}/Build/open303.tar.gz open303.so
 
       - name: Create release
         id: create_release
@@ -55,6 +53,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }} 
-          asset_path: /open303.tar.gz
+          asset_path: ${{ github.workspace }}/Build/open303.tar.gz
           asset_name: open303.tar.gz
           asset_content_type: application/gzip
