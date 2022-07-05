@@ -1,7 +1,12 @@
-cmake_minimum_required(VERSION 3.6.3 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.9)
 project(open303)
 
-add_library(open303
+set(CMAKE_CXX_STANDARD 14)
+#add_compile_options("-Wall" "-Wpedantic" "-Wextra" "-fexceptions")
+
+add_subdirectory(Libraries/vstsdk)
+
+add_library(open303 MODULE
      Source/DSPCode/GlobalDefinitions.h
      Source/DSPCode/GlobalFunctions.cpp
      Source/DSPCode/GlobalFunctions.h
@@ -41,5 +46,12 @@ add_library(open303
      Source/DSPCode/rosic_RealFunctions.cpp
      Source/DSPCode/rosic_RealFunctions.h
      Source/DSPCode/rosic_TeeBeeFilter.cpp
-     Source/DSPCode/rosic_TeeBeeFilter.h    
+     Source/DSPCode/rosic_TeeBeeFilter.h
+     Source/VSTPlugIn/Open303VST.cpp
+     Source/VSTPlugIn/Open303VST.h
+     Source/VSTPlugIn/StringConversions.c
+     ${VSTSDK_SOURCES}
 )
+
+target_include_directories(open303 PRIVATE ${VSTSDK_ROOT})
+set_target_properties(open303 PROPERTIES PREFIX "")

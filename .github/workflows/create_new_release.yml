@@ -1,0 +1,58 @@
+name: create-new-release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+env:
+  BUILD_TYPE: Release
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up build env
+        run: |
+          sudo apt install unzip
+          wget "https://web.archive.org/web/20181016150224/https://download.steinberg.net/sdk_downloads/vstsdk3610_11_06_2018_build_37.zip" -O ${{ github.workspace }}/Libraries/vstsdk/vstsdk.zip
+          unzip ${{ github.workspace }}/Libraries/vstsdk/vstsdk.zip -d ${{ github.workspace }}/Libraries/vstsdk/
+          cp ${{ github.workspace }}/Libraries/vstsdk/VST_SDK/VST2_SDK/public.sdk/source/vst2.x/* ${{ github.workspace }}/Libraries/vstsdk/
+          cp -a ${{ github.workspace }}/Libraries/vstsdk/VST_SDK/VST2_SDK/pluginterfaces ${{ github.workspace }}/Libraries/vstsdk/
+
+      - name: Build
+        run: |
+          cmake -B ${{ github.workspace }}/Build/CMake -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+          cmake --build ${{ github.workspace }}/Build/CMake --config ${{env.BUILD_TYPE}}
+
+      - name: Clean
+        run: rm -rf ${{ github.workspace }}/Libraries/vstsdk/
+
+      - name: Prepare release
+        run: tar -C ${{ github.workspace }}/Build/CMake/ -czvf ${{ github.workspace }}/Build/open303.tar.gz open303.so
+
+      - name: Create release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: ${{ github.ref_name }}
+          draft: false
+          prerelease: false
+
+      - name: Upload release asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }} 
+          asset_path: ${{ github.workspace }}/Build/open303.tar.gz
+          asset_name: open303-${{ github.ref_name }}.tar.gz
+          asset_content_type: application/gzip
